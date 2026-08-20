@@ -1723,5 +1723,5 @@ window.FichaPDF={renderiza:renderiza,entrega:entrega,
                  enviarWhats:enviarWhats,podeFolha:podeFolha,telefoneWhats:telefoneWhats};
 })();
 </script>
-<script>if('serviceWorker' in navigator && window.isSecureContext){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>if('serviceWorker' in navigator && window.isSecureContext){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(function(){});});}</script>
 </body></html>

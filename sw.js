@@ -3,7 +3,10 @@
 
    Estratégia em duas vias:
    · a PÁGINA tenta a rede primeiro e cai no cache se não houver internet,
-     de modo que uma correção publicada entra já na abertura seguinte;
+     de modo que uma correção publicada entra já na abertura seguinte.
+     O fetch da página usa cache:'no-cache' de proposito: o GitHub Pages
+     responde com max-age=600, e sem isso o proprio cache HTTP do navegador
+     devolveria a versao antiga por ate 10 minutos, anulando o rede-primeiro;
    · os demais arquivos vêm do cache na hora e se atualizam em segundo plano.
 
    Dois cuidados que parecem detalhe e não são:
@@ -45,7 +48,7 @@ self.addEventListener('fetch', function (e) {
 
   if (ehPagina) {
     e.respondWith(
-      fetch(req).then(function (r) {
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (r) {
         if (r && r.status === 200 && r.type === 'basic') {
           var a = r.clone(), b = r.clone();
           e.waitUntil(caches.open(V).then(function (c) {
