@@ -1196,8 +1196,7 @@ function salvarPDF(){
   ULT=r.url;
   if(window.__rascFim) window.__rascFim();     // PDF pronto: o rascunho sai do aparelho
   document.getElementById('babrir').style.display='inline-block';
-  document.getElementById('bwa').style.display=
-   (window.FichaPDF.podeEnviar&&window.FichaPDF.podeEnviar())?'inline-block':'none';
+  document.getElementById('bwa').style.display='inline-block';
   av.innerHTML = r.via==='share'
    ? 'Escolha <b>Salvar em Arquivos</b> na janela que abriu. Não abriu? Toque em <b>Abrir PDF</b>.'
    : 'PDF pronto. Se ele não abriu sozinho, toque em <b>Abrir PDF</b> e depois use <b>Compartilhar › Salvar em Arquivos</b>.';
@@ -1213,10 +1212,21 @@ document.getElementById('bedit').onclick=()=>{
 };
 document.getElementById('bwa').onclick=()=>{
  const nome=L('nome').split(' ')[0];
- const ok=window.FichaPDF.reenviar('Olá'+(nome!=='—'?', '+nome:'')+'! Segue a sua via da ficha de anamnese da Meili Lane.');
- document.getElementById('bavi').innerHTML = ok
-  ? 'Escolha <b>WhatsApp</b> na janela que abriu e selecione a paciente.'
-  : 'Este aparelho não permite enviar direto. Toque em <b>Abrir PDF</b> e use Compartilhar.';
+ const msg='Olá'+(nome!=='—'?', '+nome:'')+'! Segue a sua via da ficha de anamnese e do '+
+  'termo de consentimento da Meili Lane. Qualquer dúvida, é só me chamar por aqui.';
+ const via=window.FichaPDF.enviarWhats(msg,$('#fone').value);
+ const av=document.getElementById('bavi');
+ if(via==='folha')
+  av.innerHTML='Escolha <b>WhatsApp</b> na janela que abriu — o PDF já vai anexado.';
+ else if(via==='conversa')
+  av.innerHTML='WhatsApp aberto na conversa de <b>'+(nome!=='—'?nome:'a paciente')+'</b> com a mensagem pronta. '+
+   'O PDF foi baixado — <b>anexe</b> e envie.';
+ else if(via==='conversa-sem-pdf')
+  av.innerHTML='WhatsApp aberto com a mensagem pronta. Toque em <b>Abrir PDF</b> para salvar e anexar.';
+ else if(via==='sem-numero')
+  av.innerHTML='Sem telefone válido na ficha — o WhatsApp abriu para você <b>escolher a paciente</b>. O PDF foi baixado.';
+ else
+  av.innerHTML='Não consegui abrir o WhatsApp. Toque em <b>Abrir PDF</b> e compartilhe manualmente.';
 };
 /* Nova ficha: dois toques. O primeiro pede confirmação, porque um toque
    acidental aqui apagaria a ficha inteira logo depois de gerar o PDF. */
@@ -1237,7 +1247,7 @@ function zerarFicha(){
  document.getElementById('bwa').style.display='none';
  document.getElementById('bavi').textContent='Gerando o PDF…';
  if(ULT){ try{URL.revokeObjectURL(ULT)}catch(e){} }
- ULT=null; window.__ultimoArquivo=null; ARQ='Ficha.pdf';
+ ULT=null; window.__ultimoArquivo=null; window.__ultimaUrl=null; ARQ='Ficha.pdf';
  document.title='Ficha de Anamnese — Meili Lane';
  if(window.__rascNova) window.__rascNova();
  ir(0,true); window.scrollTo(0,0);
@@ -1640,7 +1650,8 @@ function entrega(doc,nomeArq){
   var url=URL.createObjectURL(blob);
   var arquivo=null;
   try{ arquivo=new File([blob],nomeArq,{type:'application/pdf'}); }catch(e){}
-  window.__ultimoArquivo=arquivo;   // guardado para o botao de enviar a paciente
+  window.__ultimoArquivo=arquivo;   // guardados para o botao de enviar a paciente
+  window.__ultimaUrl=url;
   if(arquivo && navigator.canShare && navigator.share){
     var ok=false;
     try{ ok=navigator.canShare({files:[arquivo]}); }catch(e){ ok=false; }
@@ -1658,20 +1669,58 @@ function entrega(doc,nomeArq){
   return {url:url,via:'manual'};
 }
 
-/* Reabre a folha de compartilhamento do iOS com o mesmo PDF.
-   Nao existe forma de uma pagina web injetar arquivo direto no WhatsApp:
-   quem faz isso e a folha do sistema, onde o WhatsApp aparece como opcao. */
-function reenviar(texto){
-  var f=window.__ultimoArquivo;
-  if(!f || !navigator.canShare || !navigator.share) return false;
-  try{ if(!navigator.canShare({files:[f]})) return false; }catch(e){ return false; }
-  try{ navigator.share({files:[f],title:f.name,text:texto||''}).catch(function(){}); return true; }
-  catch(e){ return false; }
+/* ---------- envio para a paciente ----------
+   Nenhuma pagina web consegue anexar arquivo direto no WhatsApp — nao existe
+   API para isso. Sobram dois caminhos, e o app escolhe o melhor disponivel:
+
+   1) FOLHA DO SISTEMA (iPad): navigator.share leva o PDF ja anexado. Ela toca
+      em WhatsApp, escolhe a paciente e envia. E o caminho completo.
+   2) WHATSAPP DIRETO (Mac e onde a folha nao aceita arquivo): abre a conversa
+      da paciente pelo telefone da ficha, com a mensagem escrita, e baixa o PDF
+      para ela anexar. No macOS o WhatsApp nao se registra como destino de
+      arquivo, entao esse e o caminho possivel ali. */
+
+function telefoneWhats(bruto){
+  var d=(bruto||'').replace(/\D/g,'');
+  if(!d) return '';
+  if(d.length===10||d.length===11) return '55'+d;           // DDD + numero
+  if(d.length===12||d.length===13) return d.indexOf('55')===0?d:'';
+  return '';
 }
-window.FichaPDF={renderiza:renderiza,entrega:entrega,reenviar:reenviar,
-                 podeEnviar:function(){ var f=window.__ultimoArquivo;
-                  if(!f||!navigator.canShare||!navigator.share) return false;
-                  try{ return navigator.canShare({files:[f]}) }catch(e){ return false } }};
+function podeFolha(){
+  var f=window.__ultimoArquivo;
+  if(!f||!navigator.canShare||!navigator.share) return false;
+  try{ return navigator.canShare({files:[f]}) }catch(e){ return false }
+}
+/* Salva o PDF no aparelho para que ela consiga anexar no WhatsApp que abriu. */
+function baixaPdf(){
+  try{
+    if(!window.__ultimaUrl) return false;
+    var a=document.createElement('a');
+    a.href=window.__ultimaUrl; a.download=(window.__ultimoArquivo||{}).name||'Ficha.pdf';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ if(a.parentNode) a.parentNode.removeChild(a); },80);
+    return true;
+  }catch(e){ return false; }
+}
+function enviarWhats(texto,fone){
+  var f=window.__ultimoArquivo;
+  /* 1) folha do sistema, com o PDF junto */
+  if(f && podeFolha()){
+    try{ navigator.share({files:[f],title:f.name,text:texto||''}).catch(function(){});
+         return 'folha'; }catch(e){}
+  }
+  /* 2) abre a conversa da paciente com a mensagem pronta */
+  var num=telefoneWhats(fone);
+  var url='https://wa.me/'+num+'?text='+encodeURIComponent(texto||'');
+  var baixou=baixaPdf();
+  var j=null;
+  try{ j=window.open(url,'_blank','noopener'); }catch(e){}
+  if(!j){ try{ location.href=url; }catch(e){ return 'falhou'; } }
+  return num ? (baixou?'conversa':'conversa-sem-pdf') : 'sem-numero';
+}
+window.FichaPDF={renderiza:renderiza,entrega:entrega,
+                 enviarWhats:enviarWhats,podeFolha:podeFolha,telefoneWhats:telefoneWhats};
 })();
 </script>
 <script>if('serviceWorker' in navigator && window.isSecureContext){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
