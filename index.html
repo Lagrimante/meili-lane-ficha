@@ -1196,12 +1196,19 @@ function coletar(){
  return {v:1,ts:Date.now(),passo:cur,nome:($('#nome').value||'').trim(),
          campos:campos,yn:D.yn,chips:chips,sig:sig};
 }
+/* Retrato do formulario em branco. Varios selects ja abrem com uma opcao
+   marcada, entao "tem valor" nao significa "foi preenchido" — sem esta
+   linha de base, toda ficha nova viraria um rascunho falso. */
+const BASE={};
+$$('input,select,textarea').forEach(e=>{ if(e.id) BASE[e.id]=e.value; });
 function nadaPreenchido(){
  let algo=false;
  $$('input,select,textarea').forEach(e=>{
-  if(e.id&&e.id!=='imc'&&e.id!=='dataproc'&&(e.value||'').trim()) algo=true; });
+  if(!e.id||e.id==='imc') return;
+  if((e.value||'')!==(BASE[e.id]||'')) algo=true; });
  if(Object.keys(D.yn).length) algo=true;
  for(const k in D.chips) if(D.chips[k].size) algo=true;
+ ['sig1','sig2','sig3'].forEach(id=>{ if(SIG[id]&&!SIG[id].vazia()) algo=true; });
  return !algo;
 }
 function pisca(){ const el=$('#rascsalvo'); if(!el)return;
