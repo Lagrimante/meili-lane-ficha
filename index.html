@@ -166,6 +166,15 @@ body.modo-doc #barra{display:flex;position:fixed;top:0;left:0;right:0;z-index:99
  color:var(--muted);opacity:0;transition:opacity .35s;pointer-events:none}
 #rascsalvo.on{opacity:1}
 body.modo-doc #rascsalvo{display:none}
+/* Enquanto o dedo desenha a assinatura, a pagina nao rola e nada mais
+   recebe toque — evita risco cortado no meio e clique acidental no rodape. */
+body.assinando{overflow:hidden;touch-action:none}
+body.assinando nav,body.assinando .chip,body.assinando button:not([data-limpa]){pointer-events:none}
+body.assinando .sig{border-color:var(--rose);border-style:solid;box-shadow:0 0 0 4px #9d4a6318}
+#bnova{background:#9d4a63;color:#fff}
+#bnova.conf{background:#b3372f}
+#bwa{background:#1f8f4e;color:#fff}
+#babrir{background:#ffffff26;color:#fff}
 </style></head><body>
 <script>document.documentElement.className='js';window.__err='';
 window.onerror=function(m,f,l){window.__err=m+' (linha '+l+')';return false};</script>
@@ -190,7 +199,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
  <label>Nome completo <span class="req">*</span></label><input type="text" id="nome" autocomplete="name">
  <div class="grid2">
   <div><label>Data de nascimento <span class="req">*</span></label><input type="date" id="nasc"></div>
-  <div><label>CPF <span class="req">*</span></label><input type="text" id="cpf" inputmode="numeric" placeholder="000.000.000-00"></div>
+  <div><label>CPF <span class="req">*</span></label><input type="text" id="cpf" inputmode="numeric" placeholder="000.000.000-00"><div class="numaviso" id="cpfaviso"></div></div>
  </div>
  <div class="grid2">
   <div><label>Celular / WhatsApp <span class="req">*</span></label><input type="tel" id="fone" inputmode="tel" placeholder="(21) 90000-0000"></div>
@@ -413,7 +422,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
  <button class="btn p" id="avanca">Continuar</button>
 </div></nav>
 <div id="rascsalvo">rascunho salvo neste iPad</div>
-<div id="barra"><button id="bedit">Voltar a editar</button><button id="bimp">Salvar PDF</button><button id="babrir" style="display:none">Abrir PDF</button><span id="bavi">Gerando o PDF…</span></div>
+<div id="barra"><button id="bedit">Voltar a editar</button><button id="bimp">Salvar PDF</button><button id="bwa" style="display:none">Enviar à paciente</button><button id="babrir" style="display:none">Abrir PDF</button><button id="bnova">Nova ficha</button><span id="bavi">Gerando o PDF…</span></div>
 <script>/** @license
  *
  * jsPDF - PDF Document creation from JavaScript
@@ -911,8 +920,30 @@ function imc(){
 }
 $('#peso').addEventListener('input',imc); $('#alt').addEventListener('input',imc);
 /* ---------- máscaras ---------- */
+/* ---------- CPF ----------
+   Confere os digitos verificadores. Um CPF errado entra num documento
+   assinado que e prontuario, entao vale barrar antes de gerar. */
+function cpfValido(v){
+ const s=(v||'').replace(/\D/g,'');
+ if(s.length!==11 || /^(\d)\1{10}$/.test(s)) return false;
+ let soma=0;
+ for(let i=0;i<9;i++) soma+=parseInt(s[i],10)*(10-i);
+ let d1=(soma*10)%11; if(d1===10) d1=0;
+ if(d1!==parseInt(s[9],10)) return false;
+ soma=0;
+ for(let i=0;i<10;i++) soma+=parseInt(s[i],10)*(11-i);
+ let d2=(soma*10)%11; if(d2===10) d2=0;
+ return d2===parseInt(s[10],10);
+}
+function avisaCpf(){
+ const el=$('#cpf'), av=$('#cpfaviso'); if(!av)return;
+ const bruto=(el.value||'').replace(/\D/g,'');
+ av.textContent=(bruto.length===11 && !cpfValido(el.value))
+  ? 'Esse CPF não confere — verifique os números.' : '';
+}
 $('#cpf').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);
- e.target.value=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2')};
+ e.target.value=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+ avisaCpf()};
 $('#fone').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);
  e.target.value=v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2')};
 $('#nome').oninput=()=>{const n=$('#nome').value.trim()||'—';$('#sig1n').textContent=n;$('#sig3n').textContent=n};
@@ -941,6 +972,7 @@ function initSig(id){
  const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
  cv.addEventListener('pointerdown',e=>{
   e.preventDefault(); fit(); draw=true; last=pos(e);
+  document.body.classList.add('assinando');
   try{cv.setPointerCapture(e.pointerId)}catch(_){}
   ctx.beginPath();ctx.arc(last.x,last.y,1.2,0,6.3);ctx.fillStyle='#1a1412';ctx.fill();
   if(vazio){vazio=false;wrap.classList.add('has')}
@@ -950,9 +982,15 @@ function initSig(id){
   ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;
  });
  const fim=e=>{draw=false;try{cv.releasePointerCapture(e.pointerId)}catch(_){}
+  /* solta a pagina so um instante depois, para o toque que encerra o traco
+     nao virar clique em "Continuar" logo abaixo do quadro */
+  setTimeout(function(){document.body.classList.remove('assinando')},350);
   if(window.__sigMudou)window.__sigMudou(id)}
  cv.addEventListener('pointerup',fim); cv.addEventListener('pointercancel',fim);
  cv.addEventListener('pointerleave',()=>{draw=false});
+ /* se o dedo sair da tela sem soltar, nao deixa a pagina travada */
+ window.addEventListener('pointercancel',()=>{document.body.classList.remove('assinando')});
+ window.addEventListener('blur',()=>{document.body.classList.remove('assinando')});
  SIG[id]={fit,limpa(){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
    const dpr=Math.min(devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);estilo();
    pend=null;pendDim=null;vazio=true;wrap.classList.remove('has');
@@ -1023,7 +1061,9 @@ function alerta(msg){
 function valida(i){
  const v=(id)=>$('#'+id).value.trim();
  if(i===0){ if(!v('nome')||!v('nasc')||!v('cpf')||!v('fone')||!v('email')||!v('queixa')){
-   alerta('Preencha os campos marcados com <b>*</b> antes de continuar.'); return false} }
+   alerta('Preencha os campos marcados com <b>*</b> antes de continuar.'); return false}
+  if(!cpfValido(v('cpf'))){ avisaCpf();
+   alerta('O <b>CPF não confere</b>. Confira os números antes de continuar.'); return false} }
  if(i===4){ if(D.chips.foto.size===0){alerta('Selecione o <b>fototipo</b> — ele define os parâmetros do procedimento.');return false} }
  if(i===6){ if(!v('proced')){alerta('Informe o <b>procedimento indicado</b>.');return false}
   if(SIG.sig1.vazia()){alerta('Falta a <b>assinatura da paciente</b> no consentimento.');return false}
@@ -1099,8 +1139,6 @@ function gerar(){
    ['Alergias',C('alerg')],['Reação relatada',L('alergq')]]))}
  ${bloco('Hábitos de vida',dl([['Tabagismo',Y('fumo')],['Álcool',L('alcool')],['Atividade física',L('ativ')],
    ['Sono',L('sono')],['Hidratação',L('agua')],['Estresse',L('stress')],['Intestino',L('intest')]]))}
- </div>`;
- html+=`<div class="pg">
  ${bloco('Pele e histórico estético',dl([['Fototipo (Fitzpatrick)',C('foto')],['Condições de pele',C('pele')],
    ['Sol ou bronzeamento em 30 dias',Y('sol')],['Usa fotoprotetor diariamente',Y('fps')],
    ['Usa ácidos em casa',Y('acido')+($('#acidoq').value.trim()?' — '+L('acidoq'):'')],
@@ -1110,13 +1148,12 @@ function gerar(){
    ['Coxa direita',M('m4')],['Coxa esquerda',M('m5')],['Braço',M('m6')],['Queixas',C('corp')],
    ['Celulite',L('celu')],['Observações',L('corpobs')]])):''}
  ${al.length?'<div class="dsec">Pontos de atenção clínica</div><div class="dalert"><b>ATENÇÃO — verificado na anamnese</b><ul style="margin:2mm 0 0;padding-left:5mm">'+al.map(m=>'<li style="margin-bottom:1.5mm">'+m+'</li>').join('')+'</ul></div>':''}
- ${bloco('Procedimento indicado',dl([['Procedimento',L('proced')],['Sessões previstas',L('sessoes')],
-   ['Data',$('#dataproc').value?new Date($('#dataproc').value+'T12:00').toLocaleDateString('pt-BR'):'—'],
-   ['Orientações entregues',L('pos')]]))}
  </div>`;
  /* PÁGINA 3 — TCLE */
  html+=`<div class="pg"><h3 class="dt">Termo de Consentimento Livre e Esclarecido</h3>
- ${dl([['Paciente',L('nome')],['CPF',L('cpf')],['Procedimento',L('proced')],['Documento nº',id]])}
+ ${dl([['Paciente',L('nome')],['CPF',L('cpf')],['Procedimento',L('proced')],['Sessões previstas',L('sessoes')],
+  ['Data do procedimento',$('#dataproc').value?new Date($('#dataproc').value+'T12:00').toLocaleDateString('pt-BR'):'—'],
+  ['Orientações entregues',L('pos')],['Documento nº',id]])}
  <div class="dtxt">${TCLE}</div>
  <div class="dsig">${sigimg('sig1',L('nome'),'Paciente · CPF '+L('cpf'))}
  ${sigimg('sig2','Joselane de Lima Duarte','Biomédica — habilitação em Biomedicina Estética<br>'+(L('crbm')!=='—'?L('crbm'):'CRBM'))}</div>
@@ -1159,6 +1196,8 @@ function salvarPDF(){
   ULT=r.url;
   if(window.__rascFim) window.__rascFim();     // PDF pronto: o rascunho sai do aparelho
   document.getElementById('babrir').style.display='inline-block';
+  document.getElementById('bwa').style.display=
+   (window.FichaPDF.podeEnviar&&window.FichaPDF.podeEnviar())?'inline-block':'none';
   av.innerHTML = r.via==='share'
    ? 'Escolha <b>Salvar em Arquivos</b> na janela que abriu. Não abriu? Toque em <b>Abrir PDF</b>.'
    : 'PDF pronto. Se ele não abriu sozinho, toque em <b>Abrir PDF</b> e depois use <b>Compartilhar › Salvar em Arquivos</b>.';
@@ -1171,6 +1210,44 @@ document.getElementById('bedit').onclick=()=>{
  document.getElementById('doc').innerHTML='';
  window.scrollTo(0,0);
  if(window.__rascVolta) window.__rascVolta();
+};
+document.getElementById('bwa').onclick=()=>{
+ const nome=L('nome').split(' ')[0];
+ const ok=window.FichaPDF.reenviar('Olá'+(nome!=='—'?', '+nome:'')+'! Segue a sua via da ficha de anamnese da Meili Lane.');
+ document.getElementById('bavi').innerHTML = ok
+  ? 'Escolha <b>WhatsApp</b> na janela que abriu e selecione a paciente.'
+  : 'Este aparelho não permite enviar direto. Toque em <b>Abrir PDF</b> e use Compartilhar.';
+};
+/* Nova ficha: dois toques. O primeiro pede confirmação, porque um toque
+   acidental aqui apagaria a ficha inteira logo depois de gerar o PDF. */
+let NOVACONF=null;
+function zerarFicha(){
+ $$('input,select,textarea').forEach(e=>{ if(e.id&&BASE[e.id]!==undefined) e.value=BASE[e.id]; });
+ for(const k in D.chips) D.chips[k].clear();
+ $$('.chip.sel').forEach(c=>c.classList.remove('sel'));
+ $$('.flag').forEach(f=>f.classList.remove('on'));
+ for(const k in D.yn) delete D.yn[k];
+ $$('[data-yn] button').forEach(b=>b.className='');
+ ['sig1','sig2','sig3'].forEach(id=>SIG[id].limpa());
+ $('#imgbloco').style.display='none'; $('#imgnao').style.display='none';
+ $('#imc').value=''; $('#altaviso').textContent=''; $('#cpfaviso').textContent='';
+ $('#sig1n').textContent='—'; $('#sig3n').textContent='—';
+ $('#doc').innerHTML=''; document.body.classList.remove('modo-doc');
+ document.getElementById('babrir').style.display='none';
+ document.getElementById('bwa').style.display='none';
+ document.getElementById('bavi').textContent='Gerando o PDF…';
+ if(ULT){ try{URL.revokeObjectURL(ULT)}catch(e){} }
+ ULT=null; window.__ultimoArquivo=null; ARQ='Ficha.pdf';
+ document.title='Ficha de Anamnese — Meili Lane';
+ if(window.__rascNova) window.__rascNova();
+ ir(0,true); window.scrollTo(0,0);
+}
+document.getElementById('bnova').onclick=function(){
+ const b=this;
+ if(NOVACONF){ clearTimeout(NOVACONF); NOVACONF=null;
+  b.textContent='Nova ficha'; b.classList.remove('conf'); zerarFicha(); return; }
+ b.textContent='Confirmar?'; b.classList.add('conf');
+ NOVACONF=setTimeout(function(){ NOVACONF=null; b.textContent='Nova ficha'; b.classList.remove('conf'); },4000);
 };
 /* ================= rascunho automático =================
    Guarda no PRÓPRIO aparelho o que já foi digitado, para o caso de a aba
@@ -1225,6 +1302,8 @@ window.__rascAgenda=function(){ if(!TEMSTORE||!RLIG)return;
 function apagarRasc(){ try{localStorage.removeItem(RKEY)}catch(e){} }
 window.__rascFim=function(){ RLIG=false; clearTimeout(RT); apagarRasc(); };
 window.__rascVolta=function(){ RLIG=true; };
+window.__rascNova=function(){ apagarRasc(); RLIG=true;
+ ['sig1','sig2','sig3'].forEach(id=>{ SDIRTY[id]=true; SCACHE[id]=null; }); };
 
 function aplicar(d){
  try{
@@ -1410,15 +1489,15 @@ function titulo(m,el){
 function secao(m,el){
   var d=m.doc, size=8;
   m.pede(lh(size)+5);
-  m.y+=1.2;
+  m.y+=0.8;
   d.setFont('helvetica','bold'); d.setFontSize(size);
   d.setTextColor(GOLD[0],GOLD[1],GOLD[2]); d.setCharSpace(0.32);
   d.text(el.textContent.trim().toUpperCase(),ML,m.y,{baseline:'top'});
   d.setCharSpace(0);
-  m.y+=lh(size,1.1)+0.8; m.regua(RULE,0.2); m.y+=1.8;
+  m.y+=lh(size,1.1)+0.6; m.regua(RULE,0.2); m.y+=1.2;
 }
 function lista(m,el){
-  var d=m.doc, size=10, colW=52, valW=CW-colW-3;
+  var d=m.doc, size=9.5, colW=50, valW=CW-colW-3;
   var itens=el.querySelectorAll('dt');
   for(var i=0;i<itens.length;i++){
     var dt=itens[i], dd=dt.nextElementSibling;
@@ -1437,9 +1516,9 @@ function lista(m,el){
       desenhaLinha(d,ln,ML+colW,yy,size,false,valW,INK);
       yy+=lh(size);
     });
-    m.y=Math.max(yy, m.y+(rot[1]?lh(size)*2:lh(size)))+0.5;
+    m.y=Math.max(yy, m.y+(rot[1]?lh(size)*2:lh(size)))+0.2;
   }
-  m.y+=1.2;
+  m.y+=0.8;
 }
 function paragrafos(m,el,size,cor,justificar){
   var d=m.doc;
@@ -1561,6 +1640,7 @@ function entrega(doc,nomeArq){
   var url=URL.createObjectURL(blob);
   var arquivo=null;
   try{ arquivo=new File([blob],nomeArq,{type:'application/pdf'}); }catch(e){}
+  window.__ultimoArquivo=arquivo;   // guardado para o botao de enviar a paciente
   if(arquivo && navigator.canShare && navigator.share){
     var ok=false;
     try{ ok=navigator.canShare({files:[arquivo]}); }catch(e){ ok=false; }
@@ -1578,7 +1658,20 @@ function entrega(doc,nomeArq){
   return {url:url,via:'manual'};
 }
 
-window.FichaPDF={renderiza:renderiza,entrega:entrega};
+/* Reabre a folha de compartilhamento do iOS com o mesmo PDF.
+   Nao existe forma de uma pagina web injetar arquivo direto no WhatsApp:
+   quem faz isso e a folha do sistema, onde o WhatsApp aparece como opcao. */
+function reenviar(texto){
+  var f=window.__ultimoArquivo;
+  if(!f || !navigator.canShare || !navigator.share) return false;
+  try{ if(!navigator.canShare({files:[f]})) return false; }catch(e){ return false; }
+  try{ navigator.share({files:[f],title:f.name,text:texto||''}).catch(function(){}); return true; }
+  catch(e){ return false; }
+}
+window.FichaPDF={renderiza:renderiza,entrega:entrega,reenviar:reenviar,
+                 podeEnviar:function(){ var f=window.__ultimoArquivo;
+                  if(!f||!navigator.canShare||!navigator.share) return false;
+                  try{ return navigator.canShare({files:[f]}) }catch(e){ return false } }};
 })();
 </script>
 <script>if('serviceWorker' in navigator && window.isSecureContext){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
