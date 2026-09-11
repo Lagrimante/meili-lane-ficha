@@ -15,7 +15,7 @@
      deixando a cópia offline velha para sempre;
    · a página é guardada sempre na mesma chave (./index.html e ./), e URLs
      com query nunca são guardadas, senão o cache enche de duplicatas. */
-var V = 'meili-ficha-v6';
+var V = 'meili-ficha-v7';
 var ARQ = ['./', './index.html', './manifest.webmanifest',
            './icon-180.png', './icon-192.png', './icon-512.png'];
 
