@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex,nofollow">
+<title>Diagnóstico do aparelho — Meili Lane</title>
+<style>
+:root{color-scheme:light;--surface:#fdfaf8;--ink:#241c1a;--ink2:#6b5c56;--muted:#a2918a;--line:#e8ded6;
+ --rule:#d8c8bd;--gold:#a8834e;--rose:#9d4a63;--good:#0f7a3d;--crit:#b3372f;--warn:#b5741a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#f6f1ec;color:var(--ink);font-size:17px;line-height:1.5;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;padding:0 16px 60px}
+.wrap{max-width:760px;margin:0 auto}
+.mk{font-family:Georgia,serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
+ text-align:center;padding-top:24px}
+h1{font-family:Georgia,serif;font-weight:400;font-size:26px;margin:16px 0 6px;text-align:center}
+p.hint{color:var(--ink2);font-size:15px;margin:0 0 22px;text-align:center;line-height:1.55}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.sec{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;
+ margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.lin{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding:9px 0;
+ border-bottom:1px dashed var(--line);font-size:15px}
+.lin:last-child{border-bottom:0}
+.lin b{color:var(--ink2);font-weight:650;flex:0 0 auto}
+.lin span{text-align:right;font-weight:650}
+.ok{color:var(--good)}.no{color:var(--crit)}.wa{color:var(--warn)}.nd{color:var(--muted);font-weight:400}
+button{font:inherit;font-weight:700;font-size:16px;padding:15px;border-radius:12px;border:none;
+ background:var(--rose);color:#fff;width:100%;margin-top:10px}
+button.s{background:#fff;color:var(--ink2);border:1.5px solid var(--rule)}
+input[type=file]{width:100%;font:inherit;font-size:15px;margin-top:10px}
+pre{background:#fff;border:1px solid var(--rule);border-radius:11px;padding:14px;font-size:12px;
+ line-height:1.45;white-space:pre-wrap;word-break:break-word;color:var(--ink2);margin:12px 0 0}
+.av{padding:14px 16px;border-radius:12px;font-size:14.5px;line-height:1.5;margin-top:12px}
+.av.g{background:#0f7a3d14;border:1px solid #0f7a3d44;color:#0d5c2f}
+.av.r{background:#b3372f14;border:1px solid #b3372f44;color:#8c2b25}
+.av.a{background:#a8834e14;border:1px solid #a8834e44;color:#6b5432}
+a.volta{display:block;text-align:center;margin-top:26px;font-size:14px;color:var(--rose);text-decoration:none}
+</style></head><body><div class="wrap">
+<div class="mk">Meili Lane · Estética Avançada</div>
+<h1>Diagnóstico do aparelho</h1>
+<p class="hint">Confere se este iPad consegue guardar o prontuário com segurança.<br>Nenhum dado de paciente é usado aqui.</p>
+
+<div class="card">
+ <div class="sec">1 · Como o app está aberto</div>
+ <div id="modo"></div>
+ <div id="avisomodo"></div>
+</div>
+
+<div class="card">
+ <div class="sec">2 · Permissão de armazenamento</div>
+ <div id="armz"></div>
+</div>
+
+<div class="card">
+ <div class="sec">3 · Gravação e leitura</div>
+ <div id="grav"></div>
+ <button id="bmarco">Registrar marco de hoje</button>
+ <div id="marco"></div>
+</div>
+
+<div class="card">
+ <div class="sec">4 · Abrir arquivo</div>
+ <p class="hint" style="text-align:left;margin:0 0 4px">Toque abaixo e escolha qualquer arquivo — de preferência uma ficha em PDF já salva.</p>
+ <input type="file" id="arq" accept=".json,.pdf,application/json,application/pdf">
+ <div id="resarq"></div>
+</div>
+
+<div class="card">
+ <div class="sec">5 · Resultado para enviar ao Eduardo</div>
+ <pre id="saida">apurando…</pre>
+ <button class="s" id="bcopia">Copiar resultado</button>
+</div>
+
+<a class="volta" href="index.html">voltar para a ficha</a>
+</div>
+<script>
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var R={};
+function lin(box,rot,val,cls){
+ var d=document.createElement('div'); d.className='lin';
+ d.innerHTML='<b>'+rot+'</b><span class="'+(cls||'')+'">'+val+'</span>';
+ $(box).appendChild(d);
+}
+function kb(n){ if(n==null)return '—';
+ if(n<1024)return n+' B';
+ if(n<1048576)return (n/1024).toFixed(1).replace('.',',')+' KB';
+ if(n<1073741824)return (n/1048576).toFixed(1).replace('.',',')+' MB';
+ return (n/1073741824).toFixed(2).replace('.',',')+' GB' }
+
+/* ---------- 1. modo de abertura ---------- */
+var standalone = (window.navigator.standalone===true) ||
+                 (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+R.standalone=standalone;
+R.ua=navigator.userAgent;
+var mIOS=(navigator.userAgent.match(/OS (\d+)[_.](\d+)/)||[]);
+R.ios=mIOS.length?mIOS[1]+'.'+mIOS[2]:'—';
+lin('#modo','Instalado na tela de início', standalone?'sim':'não', standalone?'ok':'no');
+lin('#modo','Versão do sistema', R.ios, 'nd');
+lin('#modo','Service worker no comando', (navigator.serviceWorker&&navigator.serviceWorker.controller)?'sim':'não',
+    (navigator.serviceWorker&&navigator.serviceWorker.controller)?'ok':'wa');
+$('#avisomodo').innerHTML = standalone
+ ? '<div class="av g"><b>Certo.</b> Neste modo o sistema operacional não apaga os dados guardados, mesmo que o app fique semanas sem ser aberto.</div>'
+ : '<div class="av r"><b>Atenção — aberto pelo navegador.</b> Fora da tela de início, o iPad pode apagar tudo o que o app guardar após 7 dias sem uso. Feche isto, abra o app pelo ícone da tela de início e refaça o diagnóstico.</div>';
+
+/* ---------- 2. permissao de armazenamento ---------- */
+(async function(){
+ try{
+  if(!navigator.storage){ lin('#armz','API de armazenamento','indisponível','no'); R.storage='indisponivel'; return; }
+  var jaEra = navigator.storage.persisted ? await navigator.storage.persisted() : null;
+  var pedido = navigator.storage.persist ? await navigator.storage.persist() : null;
+  var est = navigator.storage.estimate ? await navigator.storage.estimate() : {};
+  R.persistedAntes=jaEra; R.persistConcedido=pedido; R.quota=est.quota; R.uso=est.usage;
+  lin('#armz','Já era permanente', jaEra===null?'não informado':(jaEra?'sim':'não'), jaEra?'ok':'nd');
+  lin('#armz','Permanência concedida agora', pedido===null?'não informado':(pedido?'sim':'não'), pedido?'ok':'wa');
+  lin('#armz','Espaço disponível', kb(est.quota), 'nd');
+  lin('#armz','Já em uso', kb(est.usage), 'nd');
+ }catch(e){ R.storageErro=String(e); lin('#armz','Erro',String(e).slice(0,60),'no'); }
+})();
+
+/* ---------- 3. gravacao ---------- */
+var DB=null;
+function abreDB(){
+ return new Promise(function(ok,err){
+  var r=indexedDB.open('meili-diagnostico',1);
+  r.onupgradeneeded=function(){ r.result.createObjectStore('marcos',{keyPath:'id'}); };
+  r.onsuccess=function(){ ok(r.result) }; r.onerror=function(){ err(r.error) };
+ });
+}
+function põe(obj){ return new Promise(function(ok,err){
+ var t=DB.transaction('marcos','readwrite'); t.objectStore('marcos').put(obj);
+ t.oncomplete=function(){ok()}; t.onerror=function(){err(t.error)}; }); }
+function pega(id){ return new Promise(function(ok,err){
+ var t=DB.transaction('marcos','readonly'); var q=t.objectStore('marcos').get(id);
+ q.onsuccess=function(){ok(q.result)}; q.onerror=function(){err(q.error)}; }); }
+
+function mostraMarco(m){
+ var box=$('#marco');
+ if(!m){ box.innerHTML='<div class="av a">Nenhum marco registrado ainda neste aparelho.</div>'; R.marco=null; return; }
+ var dias=Math.floor((Date.now()-m.ts)/86400000);
+ var q=new Date(m.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+ R.marco={quando:q,dias:dias,bytes:m.peso,integro:m.prova===('x'.repeat(64))};
+ box.innerHTML='<div class="av '+(dias>=7?'g':'a')+'"><b>Marco encontrado.</b> Gravado em '+q+
+  ' — há <b>'+dias+' dia(s)</b>. Carga de teste: '+kb(m.peso)+', íntegra: '+(R.marco.integro?'sim':'NÃO')+
+  '.'+(dias>=7?' <b>Passou dos 7 dias — a persistência está comprovada neste aparelho.</b>':
+   ' Reabra este diagnóstico daqui a 8 dias sem usar o app no meio: se o marco continuar aqui, está provado.')+'</div>';
+}
+
+(async function(){
+ /* localStorage */
+ try{ localStorage.setItem('_diag','1'); var v=localStorage.getItem('_diag'); localStorage.removeItem('_diag');
+  lin('#grav','localStorage', v==='1'?'funciona':'falhou', v==='1'?'ok':'no'); R.localStorage=(v==='1');
+ }catch(e){ lin('#grav','localStorage','bloqueado','no'); R.localStorage=false; }
+ /* IndexedDB */
+ try{
+  DB=await abreDB();
+  lin('#grav','IndexedDB abre','sim','ok'); R.idb=true;
+  var carga='a'.repeat(300*1024);   /* 300 KB, ordem de grandeza de um tratamento com 20 sessoes */
+  await põe({id:'teste',ts:Date.now(),carga:carga});
+  var lido=await pega('teste');
+  var okCarga = lido && lido.carga && lido.carga.length===carga.length;
+  lin('#grav','Grava e lê 300 KB', okCarga?'sim':'não', okCarga?'ok':'no'); R.idb300=okCarga;
+  mostraMarco(await pega('marco'));
+ }catch(e){ lin('#grav','IndexedDB',String(e).slice(0,50),'no'); R.idb=false; R.idbErro=String(e); }
+ /* compressao nativa */
+ var temC=(typeof CompressionStream!=='undefined'&&typeof DecompressionStream!=='undefined');
+ lin('#grav','Compressão nativa', temC?'disponível':'ausente', temC?'ok':'wa'); R.compressao=temC;
+ escreve();
+})();
+
+$('#bmarco').onclick=async function(){
+ try{
+  if(!DB) DB=await abreDB();
+  await põe({id:'marco',ts:Date.now(),peso:300*1024,prova:'x'.repeat(64),carga:'a'.repeat(300*1024)});
+  mostraMarco(await pega('marco'));
+  escreve();
+ }catch(e){ $('#marco').innerHTML='<div class="av r">Não consegui gravar: '+String(e).slice(0,80)+'</div>'; }
+};
+
+/* ---------- 4. abrir arquivo ---------- */
+$('#arq').onchange=function(e){
+ var f=e.target.files&&e.target.files[0];
+ if(!f){ $('#resarq').innerHTML='<div class="av r">Nenhum arquivo chegou ao app.</div>'; R.arquivo=false; escreve(); return; }
+ var fr=new FileReader();
+ fr.onload=function(){
+  var b=new Uint8Array(fr.result);
+  var txt=''; var n=Math.min(b.length,400000);
+  for(var i=0;i<n;i++) txt+=String.fromCharCode(b[i]);
+  var ehPdf=(txt.slice(0,5)==='%PDF-');
+  var temMarca=(txt.indexOf('%%MEILI')>-1);
+  R.arquivo={nome:f.name,bytes:f.size,tipo:f.type||'—',pdf:ehPdf,marcaMeili:temMarca};
+  $('#resarq').innerHTML='<div class="av g"><b>O app conseguiu abrir o arquivo.</b><br>'+
+   f.name+' · '+kb(f.size)+' · '+(f.type||'tipo não informado')+
+   '<br>É PDF: '+(ehPdf?'sim':'não')+' · marca de continuidade: '+(temMarca?'sim':'não ainda')+'</div>';
+  escreve();
+ };
+ fr.onerror=function(){ $('#resarq').innerHTML='<div class="av r">O app viu o arquivo mas não conseguiu ler.</div>';
+  R.arquivo={erro:true}; escreve(); };
+ fr.readAsArrayBuffer(f);
+};
+
+/* ---------- 5. saida ---------- */
+function escreve(){
+ var l=[];
+ l.push('DIAGNÓSTICO MEILI LANE — '+new Date().toLocaleString('pt-BR'));
+ l.push('instalado na tela de inicio: '+(R.standalone?'SIM':'NAO'));
+ l.push('iOS: '+R.ios);
+ l.push('sw no comando: '+((navigator.serviceWorker&&navigator.serviceWorker.controller)?'sim':'nao'));
+ l.push('persistencia ja concedida: '+R.persistedAntes+' / pedida agora: '+R.persistConcedido);
+ l.push('quota: '+kb(R.quota)+' · uso: '+kb(R.uso));
+ l.push('localStorage: '+R.localStorage);
+ l.push('indexedDB: '+R.idb+' · grava 300KB: '+R.idb300+(R.idbErro?(' · erro: '+R.idbErro):''));
+ l.push('compressao nativa: '+R.compressao);
+ l.push('marco: '+(R.marco?(R.marco.quando+' ('+R.marco.dias+' dias, '+kb(R.marco.bytes)+', integro '+R.marco.integro+')'):'nenhum'));
+ l.push('arquivo aberto: '+(R.arquivo?JSON.stringify(R.arquivo):'nao testado'));
+ l.push('ua: '+R.ua);
+ $('#saida').textContent=l.join('\n');
+}
+$('#bcopia').onclick=function(){
+ var t=$('#saida').textContent;
+ var b=this;
+ function feito(){ b.textContent='Copiado'; setTimeout(function(){b.textContent='Copiar resultado'},2000) }
+ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(feito,function(){sel()}) }
+ else sel();
+ function sel(){ var r=document.createRange(); r.selectNodeContents($('#saida'));
+  var s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='Selecionado — toque em Copiar'; }
+};
+escreve();
+</script></body></html>
