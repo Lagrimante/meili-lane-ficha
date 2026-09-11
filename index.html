@@ -175,6 +175,28 @@ body.assinando .sig{border-color:var(--rose);border-style:solid;box-shadow:0 0 0
 #bnova.conf{background:#b3372f}
 #bwa{background:#1f8f4e;color:#fff}
 #babrir{background:#ffffff26;color:#fff}
+
+/* ESCOLHA DA TRILHA — primeira tela do app */
+#trilha{display:none;position:fixed;inset:0;z-index:200;background:#f6f1ec;overflow-y:auto;
+ padding:0 16px calc(32px + env(safe-area-inset-bottom))}
+#trilha .in{max-width:600px;margin:0 auto;padding-top:9vh}
+#trilha .mk{font-family:Georgia,serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+ color:var(--gold);text-align:center}
+#trilha h1{text-align:center;margin:20px 0 6px}
+#trilha p.hint{text-align:center;margin-bottom:26px}
+.tcard{display:block;width:100%;text-align:left;font-family:inherit;background:var(--surface);
+ border:1.5px solid var(--rule);border-radius:16px;padding:22px 20px;margin:0 0 14px;cursor:pointer;transition:all .15s}
+.tcard:active{transform:scale(.99);border-color:var(--rose)}
+.tcard b{display:block;font-family:Georgia,serif;font-weight:400;font-size:22px;color:var(--ink);margin-bottom:7px}
+.tcard span{display:block;font-size:15px;line-height:1.5;color:var(--ink2)}
+.tcard em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+ font-weight:800;color:var(--gold);margin-top:13px}
+body.escolhendo header,body.escolhendo nav,body.escolhendo #app,body.escolhendo #rascsalvo{display:none!important}
+body.modo-doc #trilha{display:none!important}
+
+/* blocos de parametro da sessao de laser */
+.ses{border:1px solid var(--line);border-radius:12px;padding:16px 16px 6px;margin-top:12px;background:#fbf6f3}
+.ses .st{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--gold);margin-bottom:4px}
 </style></head><body>
 <script>document.documentElement.className='js';window.__err='';
 window.onerror=function(m,f,l){window.__err=m+' (linha '+l+')';return false};</script>
@@ -183,6 +205,21 @@ window.onerror=function(m,f,l){window.__err=m+' (linha '+l+')';return false};</s
 <b>de dentro</b> de um app com navegador próprio (Documents, da Readdle, ou iCab Mobile).
 Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse app não serve — teste outro.</small></div>
 <div id="erro"></div>
+<div id="trilha"><div class="in">
+ <div class="mk">Meili Lane &middot; Est&eacute;tica Avan&ccedil;ada</div>
+ <h1>O que vamos atender hoje?</h1>
+ <p class="hint">A escolha define quais perguntas a ficha vai fazer.</p>
+ <button class="tcard" type="button" data-escolha="estetica">
+  <b>Procedimento est&eacute;tico</b>
+  <span>Facial ou corporal. Anamnese completa &mdash; sa&uacute;de, medicamentos, h&aacute;bitos de vida,
+  pele, avalia&ccedil;&atilde;o corporal e termo de consentimento.</span>
+  <em>9 etapas &middot; cerca de 6 minutos</em></button>
+ <button class="tcard" type="button" data-escolha="laser">
+  <b>Remo&ccedil;&atilde;o de tatuagem</b>
+  <span>Ficha objetiva de laser &mdash; triagem de contraindica&ccedil;&otilde;es, dados t&eacute;cnicos da tatuagem,
+  consentimento espec&iacute;fico e registro dos par&acirc;metros da sess&atilde;o.</span>
+  <em>7 etapas &middot; cerca de 3 minutos</em></button>
+</div></div>
 <header><div class="wrap">
  <div class="brand">Meili Lane · Estética Avançada</div>
  <div class="bar"><i id="prog"></i></div>
@@ -191,7 +228,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 <div class="wrap" id="app">
 <div id="rasc"></div>
 <!-- 1 IDENTIFICAÇÃO -->
-<section class="step" data-nome="Identificação">
+<section class="step" data-trilha="ambas" data-val="ident" data-nome="Identificação">
 <h1>Ficha de avaliação</h1>
 <p class="hint">Leva cerca de 6 minutos. Nenhuma informação sai deste aparelho — o rascunho fica salvo só aqui, e é apagado assim que o PDF é gerado.</p>
 <div class="card">
@@ -213,7 +250,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
    <option>Google</option><option>Passando no shopping</option><option>Indicação de profissional</option><option>Outro</option></select></div>
  </div>
 </div>
-<div class="card">
+<div class="card" id="cardqueixa">
  <div class="sec">O que a trouxe aqui</div>
  <label>Queixa principal <span class="req">*</span></label>
  <textarea id="queixa" placeholder="Com as palavras da paciente"></textarea>
@@ -223,7 +260,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </section>
 
 <!-- 2 SAÚDE -->
-<section class="step" data-nome="Saúde geral">
+<section class="step" data-trilha="estetica" data-nome="Saúde geral">
 <h2>Saúde geral</h2>
 <p class="hint">Toque em tudo o que se aplica. O que estiver em vermelho pede atenção especial antes do procedimento.</p>
 <div class="card">
@@ -245,7 +282,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </section>
 
 <!-- 3 MEDICAMENTOS -->
-<section class="step" data-nome="Medicamentos e alergias">
+<section class="step" data-trilha="estetica" data-nome="Medicamentos e alergias">
 <h2>Medicamentos e alergias</h2>
 <p class="hint">Esta é a seção mais importante da ficha para a segurança do procedimento.</p>
 <div class="card">
@@ -265,7 +302,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </section>
 
 <!-- 4 HÁBITOS -->
-<section class="step" data-nome="Hábitos de vida">
+<section class="step" data-trilha="estetica" data-nome="Hábitos de vida">
 <h2>Hábitos de vida</h2>
 <p class="hint">Influenciam diretamente no resultado e no tempo de recuperação.</p>
 <div class="card">
@@ -290,7 +327,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </div>
 </section>
 <!-- 5 PELE -->
-<section class="step" data-nome="Pele e histórico estético">
+<section class="step" data-trilha="estetica" data-val="pele" data-nome="Pele e histórico estético">
 <h2>Pele e histórico estético</h2>
 <p class="hint">Define o que pode ser feito hoje e o que precisa de preparo.</p>
 <div class="card">
@@ -318,7 +355,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </section>
 
 <!-- 6 CORPORAL -->
-<section class="step" data-nome="Avaliação corporal">
+<section class="step" data-trilha="estetica" data-nome="Avaliação corporal">
 <h2>Avaliação corporal</h2>
 <p class="hint">Preencha só se houver queixa corporal. Se o atendimento for facial, avance.</p>
 <div class="card">
@@ -349,7 +386,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </section>
 
 <!-- 7 PROCEDIMENTO E TCLE -->
-<section class="step" data-nome="Procedimento e consentimento">
+<section class="step" data-trilha="estetica" data-val="tcle" data-nome="Procedimento e consentimento">
 <h2>Procedimento e consentimento</h2>
 <p class="hint">Este é o termo que autoriza o procedimento. Leia junto com a paciente antes de assinar.</p>
 <div class="card">
@@ -375,8 +412,105 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </div>
 </section>
 
+<!-- L1 TRIAGEM DE LASER -->
+<section class="step" data-trilha="laser" data-val="triagem" data-nome="Triagem clínica">
+<h2>Triagem clínica para laser</h2>
+<p class="hint">Toque em tudo o que se aplica. Se nada se aplicar, toque em <b>Nenhuma</b> — é preciso responder.</p>
+<div class="card">
+ <div class="sec">Situações que impedem ou adiam a sessão</div>
+ <div class="chips" id="tgate"></div>
+ <div class="flag" id="f-tgate"></div>
+ <label>Detalhe o que foi marcado</label>
+ <textarea id="tgateobs" placeholder="medicamento e dose, data de suspensão, região da lesão, liberação médica obtida"></textarea>
+</div>
+<div class="card">
+ <div class="sec">Complementos</div>
+ <label>Faz uso contínuo de algum medicamento?</label>
+ <input type="text" id="tmed" placeholder="nome e dose, se souber">
+ <label>Alergias conhecidas</label>
+ <input type="text" id="talerg" placeholder="anestésico tópico, látex, medicamento, cosmético">
+ <label>Tem histórico de cicatriz que cresce — queloide?</label><div class="yn" data-yn="tquel"></div>
+ <div class="flag" id="f-tquel"><b>Tendência a queloide.</b> A remoção a laser gera ferida. Teste obrigatório em área discreta, com reavaliação em 30 dias antes de tratar a tatuagem inteira.</div>
+ <label>Usa protetor solar na área diariamente?</label><div class="yn" data-yn="tfps"></div>
+ <div class="flag" id="f-tfps"><b>Sem fotoproteção diária.</b> A área tratada precisa de FPS 50+ durante todo o tratamento e por 60 dias após a última sessão — sem isso o risco de hiperpigmentação é alto.</div>
+</div>
+</section>
+
+<!-- L2 A TATUAGEM -->
+<section class="step" data-trilha="laser" data-val="tattoo" data-nome="A tatuagem">
+<h2>A tatuagem</h2>
+<p class="hint">Estes dados definem a técnica, a fluência e quantas sessões serão necessárias.</p>
+<div class="card">
+ <div class="sec">Fototipo de Fitzpatrick <span class="req">*</span></div>
+ <div class="chips" id="tfoto"></div>
+ <div class="flag" id="f-tfoto"><b>Fototipo alto (V ou VI).</b> Risco elevado de hipo e hiperpigmentação. Preferir 1064 nm, reduzir a fluência, alargar o intervalo entre sessões e fazer teste em área discreta antes da primeira sessão completa.</div>
+</div>
+<div class="card">
+ <div class="sec">Dados da tatuagem</div>
+ <label>Localização no corpo <span class="req">*</span></label>
+ <input type="text" id="tlocal" placeholder="ex.: antebraço direito, face externa">
+ <div class="grid2">
+  <div><label>Tempo que tem a tatuagem</label>
+   <select id="ttempo"><option>Menos de 6 meses</option><option>6 a 12 meses</option><option>1 a 3 anos</option>
+   <option>3 a 10 anos</option><option>Mais de 10 anos</option></select></div>
+  <div><label>Tamanho aproximado (cm²)</label><input type="text" id="ttam" inputmode="decimal" autocomplete="off" placeholder="ex.: 60"></div>
+ </div>
+ <div class="sec" style="margin-top:22px">Cores presentes <span class="req">*</span></div>
+ <div class="chips" id="tcor"></div>
+ <div class="flag" id="f-tcor"></div>
+ <div class="sec" style="margin-top:22px">Tipo de tatuagem</div>
+ <div class="chips" id="ttipo"></div>
+ <div class="flag" id="f-ttipo"></div>
+ <label>Densidade de pigmento</label>
+ <select id="tdens"><option>Leve — traço fino, pouca tinta</option><option>Média</option>
+ <option>Pesada — áreas sólidas preenchidas</option><option>Sobreposta — camadas de tinta</option></select>
+ <label>Há cicatriz, relevo ou alteração de textura na área?</label><div class="yn" data-yn="tcicat"></div>
+ <div class="flag" id="f-tcicat"><b>Alteração de textura prévia.</b> Registrar e fotografar antes da primeira sessão — a cicatriz preexistente não é resultado do tratamento e precisa estar documentada.</div>
+</div>
+<div class="card">
+ <div class="sec">Tratamento anterior e objetivo</div>
+ <label>Já fez sessões de remoção nesta tatuagem?</label><div class="yn" data-yn="tprev"></div>
+ <label>Quantas sessões, com qual equipamento e quando</label>
+ <input type="text" id="tprevq" placeholder="ex.: 3 sessões de Nd:YAG Q-switched, última em 03/2026">
+ <label>Objetivo do tratamento</label>
+ <select id="tobj"><option>Remoção completa</option><option>Clareamento para cobertura (cover-up)</option>
+ <option>Redução parcial</option></select>
+ <div class="grid2">
+  <div><label>Sessões previstas</label><input type="text" id="tsessprev" placeholder="ex.: 8 a 12"></div>
+  <div><label>Intervalo entre sessões</label>
+   <select id="tinterv"><option>6 a 8 semanas</option><option>4 a 6 semanas</option><option>8 a 12 semanas</option></select></div>
+ </div>
+ <div class="aviso i"><b>O número de sessões não é promessa.</b> Ele depende da resposta individual do organismo e deve ser apresentado à paciente como estimativa, sempre sujeita a revisão a cada sessão.</div>
+</div>
+</section>
+
+<!-- L3 CONSENTIMENTO LASER -->
+<section class="step" data-trilha="laser" data-val="tclelaser" data-nome="Consentimento">
+<h2>Consentimento — remoção a laser</h2>
+<p class="hint">Leia junto com a paciente e colha a assinatura <b>antes</b> de iniciar a sessão.</p>
+<div class="card">
+ <div class="grid2">
+  <div><label>Data de hoje</label><input type="date" id="ldata"></div>
+  <div><label>Nº desta sessão</label><input type="text" id="lsnum" inputmode="numeric" placeholder="ex.: 1"></div>
+ </div>
+ <label>Orientações pré e pós entregues à paciente</label>
+ <textarea id="lpos" placeholder="o que foi orientado — fotoproteção, não coçar, curativo, sinais de alerta"></textarea>
+</div>
+<div class="card">
+ <div class="sec">Termo de consentimento livre e esclarecido — remoção de tatuagem a laser</div>
+ <div class="termo" id="tclelaser"></div>
+ <label style="margin-top:20px">Assinatura da paciente <span class="req">*</span></label>
+ <div class="sig" id="sig1l"><canvas></canvas><div class="ph">assine aqui com o dedo</div></div>
+ <div class="sigbar"><span id="sig1ln">—</span><button class="lnk" data-limpa="sig1l">Limpar assinatura</button></div>
+ <label style="margin-top:22px">Nº de inscrição no CRBM</label><input type="text" id="crbml" placeholder="ex.: CRBM-1 12345">
+ <label style="margin-top:16px">Assinatura da profissional <span class="req">*</span></label>
+ <div class="sig" id="sig2l"><canvas></canvas><div class="ph">assine aqui</div></div>
+ <div class="sigbar"><span>Joselane de Lima Duarte — Biomédica</span><button class="lnk" data-limpa="sig2l">Limpar assinatura</button></div>
+</div>
+</section>
+
 <!-- 8 IMAGEM -->
-<section class="step" data-nome="Uso de imagem">
+<section class="step" data-trilha="ambas" data-val="img" data-nome="Uso de imagem">
 <h2>Uso de imagem</h2>
 <div class="aviso i"><b>Este consentimento é separado e opcional.</b> A paciente pode recusar e ainda assim realizar o procedimento normalmente. Nada muda no atendimento.</div>
 <div class="card">
@@ -399,8 +533,48 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </div>
 </section>
 
+<!-- L4 SESSÃO REALIZADA -->
+<section class="step" data-trilha="laser" data-nome="Sessão realizada">
+<h2>Sessão realizada</h2>
+<p class="hint">Preencha depois da aplicação. Estes parâmetros são o que permite repetir ou corrigir a dose na próxima sessão — sem eles, cada sessão recomeça no escuro.</p>
+<div class="card">
+ <div class="ses">
+  <div class="st">Equipamento</div>
+  <label>Tecnologia utilizada</label>
+  <select id="lequip"><option>Não realizada nesta data</option><option>Nd:YAG Q-switched</option>
+  <option>Rubi Q-switched</option><option>Alexandrita Q-switched</option><option>Picossegundo</option>
+  <option>Outro</option></select>
+  <div class="grid3">
+   <div><label>Comprimento de onda (nm)</label><input type="text" id="londa" inputmode="numeric" autocomplete="off" placeholder="1064"></div>
+   <div><label>Fluência (J/cm²)</label><input type="text" id="lflu" inputmode="decimal" autocomplete="off" placeholder="3,2"></div>
+   <div><label>Spot (mm)</label><input type="text" id="lspot" inputmode="decimal" autocomplete="off" placeholder="4"></div>
+  </div>
+  <div class="grid3">
+   <div><label>Frequência (Hz)</label><input type="text" id="lfreq" inputmode="decimal" autocomplete="off" placeholder="2"></div>
+   <div><label>Nº de disparos</label><input type="text" id="ldisp" inputmode="numeric" autocomplete="off" placeholder="400"></div>
+   <div><label>Passagens</label><input type="text" id="lpass" inputmode="numeric" autocomplete="off" placeholder="1"></div>
+  </div>
+  <label>Foi feito teste em área discreta antes?</label><div class="yn" data-yn="lteste"></div>
+ </div>
+ <div class="ses">
+  <div class="st">Resposta imediata</div>
+  <div class="chips" id="lresp"></div>
+  <div class="flag" id="f-lresp"></div>
+  <label>Intercorrências durante ou após a aplicação</label>
+  <textarea id="lintcor" placeholder="opcional — o que ocorreu e o que foi feito"></textarea>
+  <label>Data prevista para a próxima sessão</label>
+  <input type="date" id="lprox">
+ </div>
+ <div class="ses">
+  <div class="st">Histórico anterior</div>
+  <label>Sessões já realizadas nesta tatuagem — data, equipamento, parâmetros e resposta</label>
+  <textarea id="lhist" placeholder="uma por linha. ex.: 12/03/2026 · Nd:YAG 1064 nm · 3,0 J/cm² · spot 4 mm · frosting imediato, sem bolha"></textarea>
+ </div>
+</div>
+</section>
+
 <!-- 9 REVISÃO -->
-<section class="step" data-nome="Revisão e PDF">
+<section class="step" data-trilha="ambas" data-nome="Revisão e PDF">
 <h2>Conferir e gerar o PDF</h2>
 <p class="hint">Revise com a paciente. Depois toque em <b>Gerar PDF</b> e escolha <b>Salvar em Arquivos</b>.</p>
 <div class="card"><div class="rev" id="rev"></div></div>
@@ -823,7 +997,23 @@ const CHIPS={
  corp:[['Gordura localizada',0],['Flacidez',0],['Celulite',0],['Estrias',0],['Retenção de líquido',0],
   ['Varizes',1],['Hérnia abdominal',2],['Diástase abdominal',1],['Pós-operatório recente',2]],
  imgusos:[['Instagram e redes sociais',0],['Site da clínica',0],['Material impresso',0],['Apresentações e aulas',0],['WhatsApp da clínica',0]],
- imgforma:[['Com o rosto visível',0],['Somente a área tratada, sem identificação',0],['Sem citar o nome',0],['Pode citar o nome',0]]
+ imgforma:[['Com o rosto visível',0],['Somente a área tratada, sem identificação',0],['Sem citar o nome',0],['Pode citar o nome',0]],
+ /* ---- trilha de remoção de tatuagem ---- */
+ tgate:[['Isotretinoína — em uso ou nos últimos 6 meses',2],['Gestação ou suspeita',2],['Amamentação',2],
+  ['Herpes ou infecção ativa na área',2],['Queloide ou cicatriz hipertrófica',2],['Fotossensibilizante em uso',2],
+  ['Anticoagulante',2],['Epilepsia fotossensível',2],['Câncer — em tratamento',2],['Imunossupressor',2],
+  ['Alergia a anestésico tópico',2],['Tatuagem sobre pinta ou lesão de pele',2],
+  ['Sol ou bronzeamento na área nos últimos 30 dias',2],['Bronzeamento artificial ou autobronzeador',2],
+  ['Diabetes descompensado',1],['Marca-passo ou implante metálico na área',1],['Doença autoimune',1],
+  ['Distúrbio de cicatrização',1],['Nenhuma',0]],
+ tfoto:[['I — muito clara, sempre queima',0],['II — clara, queima fácil',0],['III — morena clara',0],
+  ['IV — morena moderada',0],['V — morena escura',1],['VI — negra',1]],
+ tcor:[['Preto',0],['Cinza',0],['Azul',0],['Verde',1],['Vermelho',1],['Amarelo',1],['Laranja',1],
+  ['Roxo',1],['Rosa',2],['Branco',2],['Bege ou cor de pele',2],['Tinta metálica ou reflexiva',2]],
+ ttipo:[['Profissional',0],['Amadora',0],['Cobertura — cover-up',1],['Sobre remoção anterior',1],
+  ['Micropigmentação de sobrancelha',2],['Maquiagem definitiva — lábio ou olho',2]],
+ lresp:[['Frosting imediato',0],['Eritema',0],['Edema',0],['Petéquias',0],['Sangramento puntiforme',1],
+  ['Bolha',1],['Dor acima do esperado',1],['Sem resposta visível',1]]
 };
 const ALERTA={
  cond:{'Marca-passo':'<b>Marca-passo.</b> Contraindica radiofrequência, ultrassom e qualquer corrente elétrica. Exige liberação do cardiologista por escrito.',
@@ -846,9 +1036,45 @@ const ALERTA={
  corp:{'Hérnia abdominal':'<b>Hérnia abdominal.</b> Contraindica criolipólise e correntes na região. Encaminhar para avaliação cirúrgica.',
   'Pós-operatório recente':'<b>Pós-operatório recente.</b> Aguardar alta e liberação do cirurgião por escrito.',
   'Varizes':'<b>Varizes.</b> Avaliar grau. Contraindica calor e compressão intensa sobre o trajeto.'},
- foto:{'V — morena escura':1,'VI — negra':1}
+ foto:{'V — morena escura':1,'VI — negra':1},
+ tgate:{'Isotretinoína — em uso ou nos últimos 6 meses':'<b>Isotretinoína.</b> Contraindica o laser. Aguardar <b>no mínimo 6 meses</b> do término e confirmar a data de suspensão em receita ou relatório.',
+  'Gestação ou suspeita':'<b>Gestação.</b> Adiar a remoção. Não há estudo de segurança e o procedimento é eletivo — reavaliar após o parto e o fim da amamentação.',
+  'Amamentação':'<b>Amamentação.</b> Procedimento eletivo — adiar. Se houver decisão de tratar, exige liberação médica por escrito.',
+  'Herpes ou infecção ativa na área':'<b>Infecção ativa na área.</b> Contraindica a sessão. Tratar e reagendar. Em região perioral com herpes recorrente, profilaxia antiviral prescrita 24 a 48 h antes.',
+  'Queloide ou cicatriz hipertrófica':'<b>Tendência a queloide.</b> O laser gera ferida. Teste obrigatório em área discreta e reavaliação em 30 dias antes de tratar a tatuagem inteira.',
+  'Fotossensibilizante em uso':'<b>Medicamento fotossensibilizante.</b> Contraindica o laser enquanto estiver em uso. Confirmar a substância e o prazo de suspensão com o prescritor.',
+  'Anticoagulante':'<b>Anticoagulante.</b> Risco elevado de púrpura, hematoma e bolha hemorrágica. Exige liberação médica por escrito.',
+  'Epilepsia fotossensível':'<b>Epilepsia fotossensível.</b> Contraindica o disparo de luz. Avaliação neurológica por escrito antes de qualquer sessão.',
+  'Câncer — em tratamento':'<b>Neoplasia em tratamento.</b> Procedimento eletivo — contraindicado. Liberação oncológica por escrito é obrigatória.',
+  'Imunossupressor':'<b>Imunossupressor.</b> Risco aumentado de infecção e cicatrização retardada. Exige liberação médica.',
+  'Alergia a anestésico tópico':'<b>Alergia a anestésico tópico.</b> Contraindica o uso de anestésico na área sem teste prévio. Não utilizar produto sem registro na ANVISA em nenhuma hipótese.',
+  'Tatuagem sobre pinta ou lesão de pele':'<b>Lesão pigmentada sob a tatuagem.</b> Não disparar sobre a lesão. Encaminhar para avaliação dermatológica com dermatoscopia antes de qualquer sessão.',
+  'Sol ou bronzeamento na área nos últimos 30 dias':'<b>Exposição solar recente.</b> Contraindica o laser por 30 dias. Reagendar e orientar FPS 50+ no período.',
+  'Bronzeamento artificial ou autobronzeador':'<b>Pigmento exógeno na pele.</b> Aumenta a absorção e o risco de queimadura. Aguardar a saída completa do produto.',
+  'Diabetes descompensado':'<b>Diabetes descompensado.</b> Cicatrização comprometida e risco de infecção. Exige controle glicêmico documentado.',
+  'Marca-passo ou implante metálico na área':'<b>Implante na região.</b> Não disparar sobre o implante. Avaliar a distância e obter liberação do médico assistente.',
+  'Doença autoimune':'<b>Doença autoimune.</b> Risco de fenômeno de Koebner e resposta imprevisível. Avaliação médica antes de tratar.',
+  'Distúrbio de cicatrização':'<b>Cicatrização alterada.</b> Teste obrigatório em área discreta com reavaliação em 30 dias.'},
+ tcor:{'Branco':'<b>Pigmento branco.</b> Contém dióxido de titânio — risco de <b>escurecimento paradoxal irreversível</b> ao disparo. Teste obrigatório em ponto único e reavaliação antes de tratar a área.',
+  'Bege ou cor de pele':'<b>Pigmento cor de pele.</b> Mesmo risco de escurecimento paradoxal do pigmento branco. Teste obrigatório em ponto único.',
+  'Rosa':'<b>Pigmento rosa.</b> Costuma conter óxido de ferro ou titânio — risco de escurecimento paradoxal. Testar antes.',
+  'Vermelho':'<b>Pigmento vermelho.</b> Maior incidência de reação alérgica tardia e granuloma. Alertar a paciente e registrar a resposta a cada sessão.',
+  'Verde':'<b>Pigmento verde.</b> Responde mal a 1064 nm — exige comprimento de onda específico. Ajustar a expectativa de número de sessões.',
+  'Amarelo':'<b>Pigmento amarelo.</b> Resposta baixa às tecnologias usuais. Informar a paciente antes de iniciar.',
+  'Laranja':'<b>Pigmento laranja.</b> Resposta parcial e risco de escurecimento. Testar antes.',
+  'Roxo':'<b>Pigmento roxo.</b> Resposta lenta — prever mais sessões do que em tatuagem preta.',
+  'Tinta metálica ou reflexiva':'<b>Tinta metálica.</b> Reflete o disparo e pode causar queimadura. Contraindicado sem teste em ponto único.'},
+ ttipo:{'Cobertura — cover-up':'<b>Cobertura sobre tatuagem antiga.</b> Há duas ou mais camadas de tinta sobrepostas — o número de sessões cresce de forma significativa e o resultado é menos previsível.',
+  'Sobre remoção anterior':'<b>Remoção prévia.</b> Levantar equipamento, parâmetros e resposta das sessões anteriores antes de definir a dose.',
+  'Micropigmentação de sobrancelha':'<b>Micropigmentação.</b> Pigmentos de sobrancelha contêm óxido de ferro — risco alto de escurecimento paradoxal. Teste obrigatório em ponto único.',
+  'Maquiagem definitiva — lábio ou olho':'<b>Maquiagem definitiva.</b> Risco alto de escurecimento paradoxal e proximidade ocular. Proteção ocular específica e teste obrigatório.'},
+ lresp:{'Bolha':'<b>Bolha na sessão.</b> Reduzir a fluência na próxima sessão. Orientar curativo, não romper e retorno em caso de sinal de infecção.',
+  'Sangramento puntiforme':'<b>Sangramento puntiforme.</b> Fluência acima do necessário — reduzir na próxima sessão.',
+  'Dor acima do esperado':'<b>Dor desproporcional.</b> Revisar parâmetros e resfriamento antes da próxima sessão.',
+  'Sem resposta visível':'<b>Ausência de frosting.</b> Dose provavelmente insuficiente — reavaliar fluência e comprimento de onda para a próxima sessão.'}
 };
-const YNFLAG={grav:'f-grav',trombo:'f-trombo',fumo:'f-fumo',sol:'f-sol'};
+const YNFLAG={grav:'f-grav',trombo:'f-trombo',fumo:'f-fumo',sol:'f-sol',tquel:'f-tquel',tcicat:'f-tcicat'};
+const YNFLAGNAO={tfps:'f-tfps'};   /* alerta que acende no NAO, nao no SIM */
 
 /* ---------- montar chips ---------- */
 for(const k in CHIPS){
@@ -858,7 +1084,7 @@ for(const k in CHIPS){
   const b=document.createElement('button'); b.type='button';
   b.className='chip'+(nivel>1?' alerta':''); b.textContent=txt;
   b.onclick=()=>{
-   const unico=(txt==='Nenhuma'||txt==='Nenhum'||txt==='Nenhuma conhecida'||k==='foto');
+   const unico=(txt==='Nenhuma'||txt==='Nenhum'||txt==='Nenhuma conhecida'||k==='foto'||k==='tfoto');
    if(unico){ D.chips[k].clear(); box.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel')); }
    else { ['Nenhuma','Nenhum','Nenhuma conhecida'].forEach(n=>{ D.chips[k].delete(n);
      box.querySelectorAll('.chip').forEach(c=>{if(c.textContent===n)c.classList.remove('sel')}) }); }
@@ -871,7 +1097,7 @@ for(const k in CHIPS){
 }
 function flags(k){
  const f=document.getElementById('f-'+k); if(!f)return;
- if(k==='foto'){ const alto=[...D.chips.foto].some(x=>ALERTA.foto[x]); f.classList.toggle('on',alto); return; }
+ if(k==='foto'||k==='tfoto'){ const alto=[...D.chips[k]].some(x=>ALERTA.foto[x]); f.classList.toggle('on',alto); return; }
  const msgs=[...D.chips[k]].map(x=>(ALERTA[k]||{})[x]).filter(Boolean);
  f.innerHTML=msgs.map(m=>'<div style="margin-bottom:8px">'+m+'</div>').join('');
  f.classList.toggle('on',msgs.length>0);
@@ -885,6 +1111,7 @@ $$('[data-yn]').forEach(box=>{
    box.querySelectorAll('button').forEach(x=>x.className='');
    b.className='sel'+(v?'':' no');
    const f=document.getElementById(YNFLAG[k]); if(f)f.classList.toggle('on',v===1);
+   const fn=document.getElementById(YNFLAGNAO[k]); if(fn)fn.classList.toggle('on',v===0);
    if(k==='img'){ $('#imgbloco').style.display=v?'block':'none'; $('#imgnao').style.display=v?'none':'block'; if(v)setTimeout(fitAll,60); }
   };
   box.appendChild(b);
@@ -946,8 +1173,10 @@ $('#cpf').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);
  avisaCpf()};
 $('#fone').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);
  e.target.value=v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2')};
-$('#nome').oninput=()=>{const n=$('#nome').value.trim()||'—';$('#sig1n').textContent=n;$('#sig3n').textContent=n};
+$('#nome').oninput=()=>{const n=$('#nome').value.trim()||'—';
+ ['sig1n','sig3n','sig1ln'].forEach(i=>{const e=$('#'+i); if(e)e.textContent=n})};
 $('#dataproc').value=new Date().toISOString().slice(0,10);
+$('#ldata').value=new Date().toISOString().slice(0,10);
 /* ---------- assinaturas ---------- */
 const SIG={};
 function initSig(id){
@@ -1001,7 +1230,8 @@ function initSig(id){
   dim(){return pendDim?pendDim:{w:cv.width,h:cv.height}}};
  fit();
 }
-['sig1','sig2','sig3'].forEach(initSig);
+const SIGIDS=['sig1','sig2','sig3','sig1l','sig2l'];
+SIGIDS.forEach(initSig);
 const fitAll=()=>Object.values(SIG).forEach(s=>s.fit());
 addEventListener('resize',()=>{clearTimeout(window._f);window._f=setTimeout(fitAll,250)});
 addEventListener('orientationchange',()=>setTimeout(fitAll,400));
@@ -1038,13 +1268,69 @@ const TIMG=`<p>Autorizo, de forma <b>livre, informada, específica e destacada</
 <p>Posso <b>revogar esta autorização a qualquer momento</b>, por escrito ou por mensagem aos canais oficiais da clínica, <b>sem necessidade de justificativa</b>. A clínica compromete-se a, no prazo de até <b>5 dias úteis</b> do recebimento, remover as imagens de todos os canais sob seu controle. Estou ciente de que conteúdo já compartilhado ou salvo por terceiros pode não ser integralmente recuperável, e que a clínica não tem controle sobre essas cópias.</p>
 <h4>Confirmação</h4>
 <p>Declaro que li e compreendi este termo, que ele me foi apresentado <b>separadamente</b> do consentimento para o procedimento, e que <b>consinto de forma específica</b> com o uso da minha imagem nos exatos termos aqui assinalados.</p>`;
-$('#tcle').innerHTML=TCLE; $('#timg').innerHTML=TIMG;
+const TCLE_LASER=`<h4>1. Natureza do atendimento e t&eacute;cnica</h4>
+<p>Declaro que fui atendida por <b>Joselane de Lima Duarte</b>, biom&eacute;dica com habilita&ccedil;&atilde;o em Biomedicina Est&eacute;tica, inscrita no Conselho Regional de Biomedicina, e que me foi explicado, em linguagem que compreendi, que a remo&ccedil;&atilde;o de tatuagem a laser atua <b>fragmentando o pigmento</b> depositado na pele, cabendo ao pr&oacute;prio organismo elimin&aacute;-lo aos poucos pelo sistema linf&aacute;tico. Entendi que o clareamento &eacute; <b>progressivo</b> e se manifesta ao longo das semanas seguintes a cada sess&atilde;o, e n&atilde;o ao final da aplica&ccedil;&atilde;o.</p>
+<h4>2. N&uacute;mero de sess&otilde;es e resultado</h4>
+<p>Estou ciente de que o n&uacute;mero de sess&otilde;es informado &eacute; <b>uma estimativa e n&atilde;o uma promessa</b>. Ele depende do meu fot&oacute;tipo, da localiza&ccedil;&atilde;o, da idade e da densidade da tatuagem, das cores empregadas, da t&eacute;cnica de quem a fez e, sobretudo, da resposta individual do meu organismo. Fui informada de que a estimativa <b>ser&aacute; revista a cada sess&atilde;o</b> conforme a resposta observada, podendo aumentar.</p>
+<p>Fui expressamente informada de que <b>a remo&ccedil;&atilde;o completa pode n&atilde;o ser alcan&ccedil;ada</b> e que pode restar <b>pigmento residual, sombra ou diferen&ccedil;a de textura permanentes</b> na &aacute;rea tratada, ainda que todas as sess&otilde;es previstas sejam realizadas.</p>
+<h4>3. Efeitos esperados ap&oacute;s cada sess&atilde;o</h4>
+<p>Fui informada de que s&atilde;o esperados, e n&atilde;o constituem complica&ccedil;&atilde;o: branqueamento imedi&aacute;to da &aacute;rea (<i>frosting</i>), vermelhid&atilde;o, incha&ccedil;o, ardor, sensibilidade ao toque, pequenos pontos de sangramento, crosta e descama&ccedil;&atilde;o nos dias seguintes.</p>
+<h4>4. Riscos e complica&ccedil;&otilde;es poss&iacute;veis</h4>
+<p>Fui informada de que podem ocorrer, entre outros: <b>bolha</b>, infec&ccedil;&atilde;o secund&aacute;ria, <b>clareamento da pele (hipopigmenta&ccedil;&atilde;o)</b> ou <b>escurecimento da pele (hiperpigmenta&ccedil;&atilde;o)</b>, ambos pass&iacute;veis de serem <b>permanentes</b>, altera&ccedil;&atilde;o de textura, <b>cicatriz</b>, altera&ccedil;&atilde;o de sensibilidade local e rea&ccedil;&atilde;o al&eacute;rgica ao pigmento liberado durante a fragmenta&ccedil;&atilde;o, inclusive de manifesta&ccedil;&atilde;o tardia. Comprometo-me a comunicar imediatamente qualquer rea&ccedil;&atilde;o incomum.</p>
+<h4>5. Escurecimento parad&oacute;xal de pigmentos claros</h4>
+<p>Fui especificamente informada de que pigmentos <b>brancos, bege, cor de pele, rosa e alguns tons de amarelo, laranja e vermelho</b> &mdash; assim como os utilizados em <b>micropigmenta&ccedil;&atilde;o e maquiagem definitiva</b> &mdash; podem conter &oacute;xido de ferro ou di&oacute;xido de tit&acirc;nio e <b>escurecer de forma imediata e por vezes irrevers&iacute;vel</b> ao disparo do laser. Estou ciente de que, havendo esses pigmentos, ser&aacute; feito <b>teste em ponto &uacute;nico</b> antes de qualquer aplica&ccedil;&atilde;o ampla, e de que <b>esse risco n&atilde;o pode ser eliminado</b>.</p>
+<h4>6. Intervalo entre as sess&otilde;es</h4>
+<p>Estou ciente de que o intervalo m&iacute;nimo entre sess&otilde;es &eacute; necess&aacute;rio para a elimina&ccedil;&atilde;o do pigmento fragmentado e para a recupera&ccedil;&atilde;o da pele, de que <b>antecipar sess&otilde;es aumenta o risco de cicatriz e de altera&ccedil;&atilde;o de cor</b>, e de que o intervalo poder&aacute; ser alargado a crit&eacute;rio da profissional conforme a resposta da minha pele.</p>
+<h4>7. Fotoprote&ccedil;&atilde;o e cuidados</h4>
+<p>Comprometo-me a manter a &aacute;rea tratada <b>protegida do sol</b>, com uso di&aacute;rio de fotoprotetor FPS 50 ou superior, durante todo o tratamento e por pelo menos 60 dias ap&oacute;s a &uacute;ltima sess&atilde;o, a n&atilde;o remover crostas, n&atilde;o co&ccedil;ar, n&atilde;o expor a &aacute;rea a piscina, mar, sauna ou atividade f&iacute;sica intensa pelo per&iacute;odo orientado, e a seguir integralmente as demais orienta&ccedil;&otilde;es recebidas. Estou ciente de que <b>o descumprimento destas orienta&ccedil;&otilde;es &eacute; a principal causa de mancha e de cicatriz</b>, e que compromete o resultado.</p>
+<h4>8. Veracidade das informa&ccedil;&otilde;es</h4>
+<p>Declaro que <b>todas as informa&ccedil;&otilde;es prestadas na triagem cl&iacute;nica desta ficha s&atilde;o verdadeiras e completas</b>, em especial quanto a uso de isotretino&iacute;na, medicamentos fotossensibilizantes, anticoagulantes, gesta&ccedil;&atilde;o, exposi&ccedil;&atilde;o solar recente, hist&oacute;rico de queloide e exist&ecirc;ncia de pinta ou les&atilde;o de pele sob a tatuagem. Assumo responsabilidade pela omiss&atilde;o de qualquer dessas informa&ccedil;&otilde;es.</p>
+<h4>9. Direito de interromper</h4>
+<p>Fui informada de que posso <b>interromper o tratamento a qualquer momento</b>, sem preju&iacute;zo ao meu atendimento, e que tratamento interrompido pela metade deixa a tatuagem <b>parcialmente clareada</b>, condi&ccedil;&atilde;o que aceito conhecer desde j&aacute;.</p>
+<h4>10. Registro fotogr&aacute;fico cl&iacute;nico</h4>
+<p>Autorizo o registro fotogr&aacute;fico da &aacute;rea antes e depois de cada sess&atilde;o <b>para fins exclusivamente cl&iacute;nicos</b> &mdash; compara&ccedil;&atilde;o da evolu&ccedil;&atilde;o e composi&ccedil;&atilde;o do meu prontu&aacute;rio. Estou ciente de que esse registro &eacute; dado pessoal sens&iacute;vel, nos termos do <b>art. 5&ordm;, II, da Lei n&ordm; 13.709/2018 (LGPD)</b>, ser&aacute; tratado com base no <b>art. 11, II, "f"</b> da mesma lei e <b>n&atilde;o ser&aacute; publicado nem compartilhado</b> sem autoriza&ccedil;&atilde;o espec&iacute;fica minha, formalizada em documento pr&oacute;prio e separado deste.</p>
+<h4>11. Prote&ccedil;&atilde;o de dados</h4>
+<p>Fui informada de que meus dados ser&atilde;o utilizados para a execu&ccedil;&atilde;o do tratamento, o cumprimento de obriga&ccedil;&otilde;es legais e o contato relativo ao meu atendimento, e de que posso solicitar acesso, corre&ccedil;&atilde;o, portabilidade ou elimina&ccedil;&atilde;o, nos termos do art. 18 da LGPD, pelos canais da cl&iacute;nica.</p>
+<h4>12. Declara&ccedil;&atilde;o final</h4>
+<p>Declaro que li e compreendi integralmente este termo, que tive oportunidade de perguntar e que todas as minhas d&uacute;vidas foram respondidas. <b>Consinto livremente com a realiza&ccedil;&atilde;o das sess&otilde;es de remo&ccedil;&atilde;o de tatuagem a laser.</b></p>`;
+$('#tcle').innerHTML=TCLE; $('#timg').innerHTML=TIMG; $('#tclelaser').innerHTML=TCLE_LASER;
 /* ---------- navegação ---------- */
-const STEPS=$$('.step'); let cur=0;
+/* ---------- trilhas ----------
+   As secoes ficam todas no DOM; STEPS e a lista filtrada da trilha em uso.
+   Nenhuma etapa e referenciada por numero em lugar nenhum: a validacao vai
+   por data-val, para que acrescentar ou remover etapa nao quebre nada. */
+let TRILHA='estetica';
+const TODOS=$$('.step');
+let STEPS=[];
+function montaSteps(){
+ STEPS=TODOS.filter(function(s){ const t=s.dataset.trilha||'ambas'; return t==='ambas'||t===TRILHA; });
+}
+function ajustaTrilha(){
+ const q=$('#cardqueixa'); if(q) q.style.display=(TRILHA==='laser')?'none':'';
+}
+function escolherTrilha(){
+ document.body.classList.add('escolhendo');
+ const box=$('#trilha'); box.style.display='block';
+ box.querySelectorAll('[data-escolha]').forEach(function(b){
+  b.onclick=function(){ comecar(b.dataset.escolha); };
+ });
+ window.scrollTo(0,0);
+}
+function comecar(t){
+ TRILHA=(t==='laser')?'laser':'estetica';
+ $('#trilha').style.display='none';
+ document.body.classList.remove('escolhendo');
+ montaSteps(); ajustaTrilha();
+ RLIG=true; ir(0,true); ligarAuto(); window.__rascAgenda();
+ window.scrollTo(0,0);
+}
+let cur=0;
 function ir(i,forca){
+ if(!STEPS.length) montaSteps();
  if(!forca && i>cur && !valida(cur)) return;
  cur=Math.max(0,Math.min(STEPS.length-1,i));
- STEPS.forEach((s,j)=>s.classList.toggle('on',j===cur));
+ TODOS.forEach(function(s){ s.classList.remove('on'); });
+ if(STEPS[cur]) STEPS[cur].classList.add('on');
  $('#prog').style.width=((cur+1)/STEPS.length*100)+'%';
  $('#sname').textContent=(cur+1)+' de '+STEPS.length+' · '+STEPS[cur].dataset.nome;
  $('#volta').disabled=cur===0;
@@ -1058,17 +1344,26 @@ function alerta(msg){
  const a=document.createElement('div'); a.className='aviso i'; a.style.cssText='position:fixed;left:16px;right:16px;bottom:96px;z-index:80;box-shadow:0 8px 30px #241c1a26;background:#fff;border-color:#b3372f66;color:#8c2b25';
  a.innerHTML=msg; document.body.appendChild(a); setTimeout(()=>a.remove(),3600);
 }
-function valida(i){
- const v=(id)=>$('#'+id).value.trim();
- if(i===0){ if(!v('nome')||!v('nasc')||!v('cpf')||!v('fone')||!v('email')||!v('queixa')){
-   alerta('Preencha os campos marcados com <b>*</b> antes de continuar.'); return false}
+function valida(i){ const sec=STEPS[i]; return sec?validaChave(sec.dataset.val||''):true; }
+function validaChave(ch){
+ const v=(id)=>{const e=$('#'+id); return e?e.value.trim():''};
+ if(ch==='ident'){
+  const falta=!v('nome')||!v('nasc')||!v('cpf')||!v('fone')||!v('email')||(TRILHA!=='laser'&&!v('queixa'));
+  if(falta){ alerta('Preencha os campos marcados com <b>*</b> antes de continuar.'); return false }
   if(!cpfValido(v('cpf'))){ avisaCpf();
-   alerta('O <b>CPF não confere</b>. Confira os números antes de continuar.'); return false} }
- if(i===4){ if(D.chips.foto.size===0){alerta('Selecione o <b>fototipo</b> — ele define os parâmetros do procedimento.');return false} }
- if(i===6){ if(!v('proced')){alerta('Informe o <b>procedimento indicado</b>.');return false}
+   alerta('O <b>CPF não confere</b>. Confira os números antes de continuar.'); return false } }
+ if(ch==='pele'){ if(D.chips.foto.size===0){alerta('Selecione o <b>fototipo</b> — ele define os parâmetros do procedimento.');return false} }
+ if(ch==='tcle'){ if(!v('proced')){alerta('Informe o <b>procedimento indicado</b>.');return false}
   if(SIG.sig1.vazia()){alerta('Falta a <b>assinatura da paciente</b> no consentimento.');return false}
   if(SIG.sig2.vazia()){alerta('Falta a <b>assinatura da profissional</b>.');return false} }
- if(i===7){ if(D.yn.img===undefined){alerta('Responda se a paciente <b>autoriza o uso de imagem</b>.');return false}
+ if(ch==='triagem'){ if(D.chips.tgate.size===0){
+   alerta('Responda a triagem. Se nada se aplica, toque em <b>Nenhuma</b> — a resposta em branco não vale como negativa.');return false} }
+ if(ch==='tattoo'){ if(D.chips.tfoto.size===0){alerta('Selecione o <b>fototipo</b> — ele define o comprimento de onda e a fluência.');return false}
+  if(!v('tlocal')){alerta('Informe a <b>localização</b> da tatuagem.');return false}
+  if(D.chips.tcor.size===0){alerta('Selecione as <b>cores</b> presentes na tatuagem.');return false} }
+ if(ch==='tclelaser'){ if(SIG.sig1l.vazia()){alerta('Falta a <b>assinatura da paciente</b> no consentimento.');return false}
+  if(SIG.sig2l.vazia()){alerta('Falta a <b>assinatura da profissional</b>.');return false} }
+ if(ch==='img'){ if(D.yn.img===undefined){alerta('Responda se a paciente <b>autoriza o uso de imagem</b>.');return false}
   if(D.yn.img===1&&SIG.sig3.vazia()){alerta('Falta a <b>assinatura específica</b> do termo de imagem.');return false} }
  return true;
 }
@@ -1082,6 +1377,7 @@ const M=(id)=>{const n=NUM(id);return n?FMT(n)+' cm':''};
 const Y=(k)=>D.yn[k]===1?'Sim':(D.yn[k]===0?'Não':'—');
 function revisar(){
  const g=(t,c)=>`<div class="g"><h5>${t}</h5><div>${c}</div></div>`;
+ if(TRILHA==='laser') return revisarLaser(g);
  $('#rev').innerHTML=
   g('Paciente',`<b>${L('nome')}</b><br>${L('cpf')} · ${L('fone')}<br>${L('email')}`)+
   g('Queixa',L('queixa'))+
@@ -1101,9 +1397,70 @@ function revisar(){
  if(p.length){box.style.display='block';box.innerHTML='<b>Falta:</b> '+p.join(', ')+'.'}else{box.style.display='none'}
 }
 
+function revisarLaser(g){
+ $('#rev').innerHTML=
+  g('Paciente',`<b>${L('nome')}</b><br>${L('cpf')} · ${L('fone')}<br>${L('email')}`)+
+  g('Triagem clínica',C('tgate'))+
+  g('Fototipo',C('tfoto'))+
+  g('Tatuagem',`<b>${L('tlocal')}</b> — ${L('ttempo')}, ${L('tdens')}`)+
+  g('Cores',C('tcor'))+
+  g('Tipo',C('ttipo'))+
+  g('Objetivo',`<b>${L('tobj')}</b> — ${L('tsessprev')} sessão(ões) previstas, intervalo de ${L('tinterv')}`)+
+  g('Sessão de hoje',`nº ${L('lsnum')} · ${L('lequip')}${L('londa')!=='—'?' · '+L('londa')+' nm':''}${L('lflu')!=='—'?' · '+L('lflu')+' J/cm²':''}`)+
+  g('Resposta imediata',C('lresp'))+
+  g('Uso de imagem',D.yn.img===1?`<b style="color:var(--good)">Autorizado</b> — ${C('imgusos')} · ${C('imgforma')} · ${L('imgprazo')}`:'<b style="color:var(--crit)">Não autorizado</b> — uso exclusivamente clínico');
+ const p=[];
+ if(SIG.sig1l.vazia())p.push('assinatura da paciente');
+ if(SIG.sig2l.vazia())p.push('assinatura da profissional');
+ if(D.yn.img===1&&SIG.sig3.vazia())p.push('assinatura do termo de imagem');
+ const box=$('#pend');
+ if(p.length){box.style.display='block';box.innerHTML='<b>Falta:</b> '+p.join(', ')+'.'}else{box.style.display='none'}
+}
+
+/* ---------- páginas da trilha de remoção de tatuagem ---------- */
+function paginasLaser(x){
+ const dl=x.dl, bloco=x.bloco, sigimg=x.sigimg, id=x.id, carimbo=x.carimbo;
+ const dtBR=(i)=>{const e=$('#'+i); const v=e?e.value:''; return v?new Date(v+'T12:00').toLocaleDateString('pt-BR'):'—'};
+ const un=(i,u)=>L(i)!=='—'?L(i)+' '+u:'';
+ const nl=(i)=>L(i)==='—'?'':L(i).replace(/[<>&]/g,'').split(/\n+/).map(t=>'<p>'+t+'</p>').join('');
+ let h='';
+ h+=`<div class="pg"><h3 class="dt">Ficha de Anamnese — Remoção de Tatuagem a Laser</h3>
+ ${dl([['Documento nº',id],['Data e hora',carimbo],['Sessão nº',L('lsnum')]])}
+ ${bloco('Identificação',dl([['Nome',L('nome')],['Nascimento',x.nasc+(x.idade?' ('+x.idade+')':'')],['CPF',L('cpf')],
+   ['Telefone',L('fone')],['E-mail',L('email')],['Endereço',L('end')],['Profissão',L('prof')],['Origem',L('origem')]]))}
+ ${bloco('Triagem clínica para laser',dl([['Situações assinaladas',C('tgate')],['Detalhamento',L('tgateobs')],
+   ['Medicamentos de uso contínuo',L('tmed')],['Alergias conhecidas',L('talerg')],
+   ['Histórico de queloide',Y('tquel')],['Fotoproteção diária na área',Y('tfps')]]))}
+ ${bloco('A tatuagem',dl([['Fototipo (Fitzpatrick)',C('tfoto')],['Localização',L('tlocal')],
+   ['Tempo desde a tatuagem',L('ttempo')],['Tamanho aproximado',un('ttam','cm²')],['Cores presentes',C('tcor')],
+   ['Tipo',C('ttipo')],['Densidade de pigmento',L('tdens')],
+   ['Cicatriz ou alteração de textura na área',Y('tcicat')],
+   ['Remoção anterior nesta tatuagem',Y('tprev')+($('#tprevq').value.trim()?' — '+L('tprevq'):'')],
+   ['Objetivo do tratamento',L('tobj')],['Sessões previstas (estimativa)',L('tsessprev')],
+   ['Intervalo entre sessões',L('tinterv')]]))}
+ ${bloco('Sessão realizada',dl([['Tecnologia',L('lequip')],['Comprimento de onda',un('londa','nm')],
+   ['Fluência',un('lflu','J/cm²')],['Spot',un('lspot','mm')],['Frequência',un('lfreq','Hz')],
+   ['Nº de disparos',L('ldisp')],['Passagens',L('lpass')],['Teste prévio em área discreta',Y('lteste')],
+   ['Resposta imediata',C('lresp')],['Intercorrências',L('lintcor')],
+   ['Data prevista da próxima sessão',dtBR('lprox')],['Orientações entregues',L('lpos')]]))}
+ ${nl('lhist')?bloco('Histórico de sessões anteriores','<div class="dtxt">'+nl('lhist')+'</div>'):''}
+ ${x.al.length?'<div class="dsec">Pontos de atenção clínica</div><div class="dalert"><b>ATENÇÃO — verificado na triagem</b><ul style="margin:2mm 0 0;padding-left:5mm">'+x.al.map(m=>'<li style="margin-bottom:1.5mm">'+m+'</li>').join('')+'</ul></div>':''}
+ </div>`;
+ h+=`<div class="pg"><h3 class="dt">Consentimento — Remoção de Tatuagem a Laser</h3>
+ ${dl([['Paciente',L('nome')],['CPF',L('cpf')],['Tatuagem',L('tlocal')],['Objetivo',L('tobj')],
+   ['Sessões previstas (estimativa)',L('tsessprev')],['Sessão nº',L('lsnum')],
+   ['Data',dtBR('ldata')],['Documento nº',id]])}
+ <div class="dtxt">${TCLE_LASER}</div>
+ <div class="dsig">${sigimg('sig1l',L('nome'),'Paciente · CPF '+L('cpf'))}
+ ${sigimg('sig2l','Joselane de Lima Duarte','Biomédica — habilitação em Biomedicina Estética<br>'+(L('crbml')!=='—'?L('crbml'):'CRBM'))}</div>
+ <div class="dstamp">Documento ${id} · assinado eletronicamente em ${carimbo} · gerado em dispositivo da clínica.<br>
+ Validade da assinatura eletrônica entre as partes: art. 10, § 2º, da MP nº 2.200-2/2001. Uma via foi disponibilizada à paciente.</div></div>`;
+ return h;
+}
+
 /* ---------- documento para impressão ---------- */
 function gerar(){
- if(!valida(6)||!valida(7))return;
+ if(!validaChave(TRILHA==='laser'?'tclelaser':'tcle')||!validaChave('img'))return;
  const agora=new Date();
  const carimbo=agora.toLocaleString('pt-BR',{dateStyle:'full',timeStyle:'medium'});
  const id='ML-'+agora.getFullYear()+String(agora.getMonth()+1).padStart(2,'0')+String(agora.getDate()).padStart(2,'0')
@@ -1113,18 +1470,26 @@ function gerar(){
  const idade=$('#nasc').value?Math.floor((agora-new Date($('#nasc').value+'T12:00'))/31557600000)+' anos':'';
  /* alertas clínicos consolidados */
  const al=[];
- ['cond','med','alerg','pele','proc','corp'].forEach(k=>{[...D.chips[k]].forEach(x=>{
+ ['cond','med','alerg','pele','proc','corp','tgate','tcor','ttipo','lresp'].forEach(k=>{[...D.chips[k]].forEach(x=>{
    const m=(ALERTA[k]||{})[x]; if(m)al.push(m.replace(/<\/?b>/g,''))})});
  if(D.yn.grav===1)al.push('Gestação — contraindica injetáveis, laser, radiofrequência e criolipólise.');
  if(D.yn.trombo===1)al.push('Histórico de trombose — exige liberação médica escrita para procedimentos corporais.');
  if(D.yn.sol===1)al.push('Exposição solar nos últimos 30 dias — contraindica laser e peeling no período.');
  if([...D.chips.foto].some(x=>ALERTA.foto[x]))al.push('Fototipo alto — risco de hiperpigmentação pós-inflamatória. Preparo e teste prévio.');
+ if([...D.chips.tfoto].some(x=>ALERTA.foto[x]))al.push('Fototipo alto — preferir 1064 nm, reduzir a fluência, alargar o intervalo entre sessões e testar em área discreta antes da primeira sessão completa.');
+ if(D.yn.tquel===1)al.push('Tendência a queloide — teste obrigatório em área discreta, com reavaliação em 30 dias antes de tratar a tatuagem inteira.');
+ if(D.yn.tcicat===1)al.push('Alteração de textura preexistente na área — documentada e fotografada antes da primeira sessão.');
+ if(D.yn.tfps===0)al.push('Sem fotoproteção diária na área — risco elevado de hiperpigmentação. FPS 50+ durante o tratamento e por 60 dias após a última sessão.');
+ if(D.yn.lteste===0&&TRILHA==='laser')al.push('Sessão realizada sem teste prévio em área discreta.');
  const bloco=(t,c)=>c?`<div class="dsec">${t}</div>${c}`:'';
  const sigimg=(id2,nome,sub)=>{const u=SIG[id2].url();
   const dm=SIG[id2].dim();
   return `<div>${u?`<img src="${u}" data-w="${dm.w}" data-h="${dm.h}">`:'<div style="height:24mm;border-bottom:.5pt solid #241c1a"></div>'}<small><b>${nome}</b><br>${sub}</small></div>`};
 
  let html='';
+ const SPRO=(TRILHA==='laser')?'sig2l':'sig2', CRBMID=(TRILHA==='laser')?'crbml':'crbm';
+ const ctx={id:id,carimbo:carimbo,dl:dl,bloco:bloco,sigimg:sigimg,nasc:nasc,idade:idade,al:al};
+ if(TRILHA==='laser'){ html+=paginasLaser(ctx); } else {
  /* PÁGINA 1-2 — ANAMNESE */
  html+=`<div class="pg"><h3 class="dt">Ficha de Anamnese — Meili Lane Estética Avançada</h3>
  ${dl([['Documento nº',id],['Data e hora',carimbo]])}
@@ -1159,6 +1524,7 @@ function gerar(){
  ${sigimg('sig2','Joselane de Lima Duarte','Biomédica — habilitação em Biomedicina Estética<br>'+(L('crbm')!=='—'?L('crbm'):'CRBM'))}</div>
  <div class="dstamp">Documento ${id} · assinado eletronicamente em ${carimbo} · gerado em dispositivo da clínica.<br>
  Validade da assinatura eletrônica entre as partes: art. 10, § 2º, da MP nº 2.200-2/2001. Uma via foi disponibilizada à paciente.</div></div>`;
+ }
  /* PÁGINA 4 — IMAGEM */
  if(D.yn.img===1){
   html+=`<div class="pg"><h3 class="dt">Autorização de Uso de Imagem</h3>
@@ -1175,7 +1541,7 @@ function gerar(){
   <div class="dtxt"><p>A paciente <b>não autorizou</b> o uso de suas fotografias para finalidade de divulgação.</p>
   <p>As imagens porventura registradas serão utilizadas <b>exclusivamente para acompanhamento clínico</b> e composição do prontuário, com base no art. 11, II, "f", da Lei nº 13.709/2018, armazenadas com controle de acesso e <b>não serão publicadas, compartilhadas ou cedidas a terceiros</b> sob nenhuma hipótese.</p>
   <p>Registro lavrado pela profissional responsável para fins de controle interno.</p></div>
-  <div class="dsig" style="grid-template-columns:1fr">${sigimg('sig2','Joselane de Lima Duarte','Biomédica — '+(L('crbm')!=='—'?L('crbm'):'CRBM'))}</div></div>`;
+  <div class="dsig" style="grid-template-columns:1fr">${sigimg(SPRO,'Joselane de Lima Duarte','Biomédica — '+(L(CRBMID)!=='—'?L(CRBMID):'CRBM'))}</div></div>`;
  }
  $('#doc').innerHTML=html;
  document.title='Ficha '+L('nome').split(' ')[0]+' '+id;
@@ -1238,7 +1604,7 @@ function zerarFicha(){
  $$('.flag').forEach(f=>f.classList.remove('on'));
  for(const k in D.yn) delete D.yn[k];
  $$('[data-yn] button').forEach(b=>b.className='');
- ['sig1','sig2','sig3'].forEach(id=>SIG[id].limpa());
+ SIGIDS.forEach(id=>SIG[id].limpa());
  $('#imgbloco').style.display='none'; $('#imgnao').style.display='none';
  $('#imc').value=''; $('#altaviso').textContent=''; $('#cpfaviso').textContent='';
  $('#sig1n').textContent='—'; $('#sig3n').textContent='—';
@@ -1250,7 +1616,7 @@ function zerarFicha(){
  ULT=null; window.__ultimoArquivo=null; window.__ultimaUrl=null; ARQ='Ficha.pdf';
  document.title='Ficha de Anamnese — Meili Lane';
  if(window.__rascNova) window.__rascNova();
- ir(0,true); window.scrollTo(0,0);
+ escolherTrilha(); window.scrollTo(0,0);
 }
 document.getElementById('bnova').onclick=function(){
  const b=this;
@@ -1267,7 +1633,7 @@ const RKEY='meili-ficha-rascunho-v1';
 const TEMSTORE=(function(){try{localStorage.setItem('_ml','1');localStorage.removeItem('_ml');return true}
  catch(e){return false}})();
 let RLIG=false, RT=null, PT=null;
-const SDIRTY={sig1:true,sig2:true,sig3:true}, SCACHE={};
+const SDIRTY={}, SCACHE={}; SIGIDS.forEach(i=>SDIRTY[i]=true);
 
 /* toDataURL é caro; só refaz quando a assinatura muda de verdade */
 window.__sigMudou=function(id){ SDIRTY[id]=true; window.__rascAgenda(); };
@@ -1279,8 +1645,8 @@ function coletar(){
  const campos={};
  $$('input,select,textarea').forEach(e=>{ if(e.id&&e.id!=='imc') campos[e.id]=e.value; });
  const chips={}; for(const k in D.chips) chips[k]=[...D.chips[k]];
- const sig={}; ['sig1','sig2','sig3'].forEach(id=>{ const d=sigDados(id); if(d) sig[id]=d; });
- return {v:1,ts:Date.now(),passo:cur,nome:($('#nome').value||'').trim(),
+ const sig={}; SIGIDS.forEach(id=>{ const d=sigDados(id); if(d) sig[id]=d; });
+ return {v:2,ts:Date.now(),trilha:TRILHA,passo:cur,nome:($('#nome').value||'').trim(),
          campos:campos,yn:D.yn,chips:chips,sig:sig};
 }
 /* Retrato do formulario em branco. Varios selects ja abrem com uma opcao
@@ -1295,7 +1661,7 @@ function nadaPreenchido(){
   if((e.value||'')!==(BASE[e.id]||'')) algo=true; });
  if(Object.keys(D.yn).length) algo=true;
  for(const k in D.chips) if(D.chips[k].size) algo=true;
- ['sig1','sig2','sig3'].forEach(id=>{ if(SIG[id]&&!SIG[id].vazia()) algo=true; });
+ SIGIDS.forEach(id=>{ if(SIG[id]&&!SIG[id].vazia()) algo=true; });
  return !algo;
 }
 function pisca(){ const el=$('#rascsalvo'); if(!el)return;
@@ -1313,7 +1679,7 @@ function apagarRasc(){ try{localStorage.removeItem(RKEY)}catch(e){} }
 window.__rascFim=function(){ RLIG=false; clearTimeout(RT); apagarRasc(); };
 window.__rascVolta=function(){ RLIG=true; };
 window.__rascNova=function(){ apagarRasc(); RLIG=true;
- ['sig1','sig2','sig3'].forEach(id=>{ SDIRTY[id]=true; SCACHE[id]=null; }); };
+ SIGIDS.forEach(id=>{ SDIRTY[id]=true; SCACHE[id]=null; }); };
 
 function aplicar(d){
  try{
@@ -1334,7 +1700,9 @@ function aplicar(d){
   ir(Math.min(d.passo||0,STEPS.length-1),true);
  }catch(e){ ir(0,true); }
 }
+let AUTOLIG=false;
 function ligarAuto(){
+ if(AUTOLIG) return; AUTOLIG=true;
  document.addEventListener('input',window.__rascAgenda,true);
  document.addEventListener('change',window.__rascAgenda,true);
  document.addEventListener('click',function(e){
@@ -1348,7 +1716,9 @@ function ligarAuto(){
 function iniciar(){
  let d=null;
  if(TEMSTORE){ try{ d=JSON.parse(localStorage.getItem(RKEY)||'null'); }catch(e){ d=null; } }
- if(!d || d.v!==1){ RLIG=true; ir(0,true); ligarAuto(); return; }
+ if(!d || d.v!==2){ escolherTrilha(); return; }
+ /* o rascunho guarda a trilha: a ficha reabre exatamente nas etapas de origem */
+ TRILHA=(d.trilha==='laser')?'laser':'estetica'; montaSteps(); ajustaTrilha();
  const cx=$('#rasc');
  let quando='';
  try{ quando=new Date(d.ts).toLocaleString('pt-BR',
@@ -1365,10 +1735,9 @@ function iniciar(){
   cx.style.display='none';
   document.removeEventListener('input',ignorou,true);
   document.removeEventListener('pointerdown',ignorou,true);
-  RLIG=true;
-  if(qual==='continuar'){ aplicar(d); } else { apagarRasc(); }
-  ligarAuto();
-  window.__rascAgenda();   // o evento que dispensou o banner ja passou; agenda na mao
+  if(qual==='continuar'){ RLIG=true; aplicar(d); ligarAuto();
+   window.__rascAgenda();   // o evento que dispensou o banner ja passou; agenda na mao
+  } else { apagarRasc(); escolherTrilha(); }
  }
  /* Se ela ignorar o banner e simplesmente começar a preencher, isso conta como
     "começar uma nova": o rascunho antigo sai e o novo passa a ser gravado.
@@ -1377,7 +1746,7 @@ function iniciar(){
  document.addEventListener('input',ignorou,true);
  document.addEventListener('pointerdown',ignorou,true);
  $('#rasc-sim').onclick=function(){ escolher('continuar'); };
- $('#rasc-nao').onclick=function(){ escolher('nova'); ir(0,true); };
+ $('#rasc-nao').onclick=function(){ escolher('nova'); };
  ir(0,true);
 }
 iniciar();
