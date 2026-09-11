@@ -1323,6 +1323,7 @@ function comecar(t){
  montaSteps(); ajustaTrilha();
  RLIG=true; ir(0,true); ligarAuto(); window.__rascAgenda();
  window.scrollTo(0,0);
+ if(window.__diagnostico) setTimeout(window.__diagnostico,1200);
 }
 let cur=0;
 function ir(i,forca){
@@ -1750,7 +1751,12 @@ function iniciar(){
  ir(0,true);
 }
 iniciar();
-setTimeout(function(){
+/* Autodiagnostico: so acusa falha quando a ficha realmente nao subiu.
+   Enquanto a tela de escolha da trilha esta aberta nao ha etapa ativa, e sem
+   esta guarda o aviso vermelho aparecia em toda abertura normal. Depois da
+   escolha o relogio e rearmado, para o diagnostico continuar valendo. */
+function diagnostico(){
+ if(document.body.classList.contains('escolhendo')) return;
  if(!document.querySelector('.step.on')){
   var e=document.getElementById('erro');
   e.style.display='block';
@@ -1758,7 +1764,9 @@ setTimeout(function(){
    '<small>Teste outro app com navegador próprio. Mande esta linha para o Eduardo:</small>'+
    '<code>'+(window.__err||'sem mensagem de erro')+' || '+navigator.userAgent+'</code>';
  }
-},1200);
+}
+window.__diagnostico=diagnostico;
+setTimeout(diagnostico,1200);
 </script>
 <script>/* ============================================================
    GERADOR DE PDF PRÓPRIO — não depende de window.print()
