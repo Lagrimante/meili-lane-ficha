@@ -174,6 +174,7 @@ body.assinando .sig{border-color:var(--rose);border-style:solid;box-shadow:0 0 0
 #bnova{background:#9d4a63;color:#fff}
 #bnova.conf{background:#b3372f}
 #bwa{background:#1f8f4e;color:#fff}
+#bbkp{background:#ffffff26;color:#fff}
 #babrir{background:#ffffff26;color:#fff}
 
 /* ESCOLHA DA TRILHA — primeira tela do app */
@@ -196,6 +197,28 @@ body.escolhendo header,body.escolhendo nav,body.escolhendo #app,body.escolhendo 
 #diaglink a{display:inline-block;font-size:14.5px;font-weight:650;color:var(--ink2);text-decoration:none;
  padding:12px 22px;border:1.5px solid var(--rule);border-radius:99px;background:var(--surface)}
 #diaglink a:active{border-color:var(--rose);color:var(--rose)}
+
+/* LISTA DE TRATAMENTOS EM ANDAMENTO */
+#lista{display:none;position:fixed;inset:0;z-index:200;background:#f6f1ec;overflow-y:auto;
+ padding:0 16px calc(32px + env(safe-area-inset-bottom))}
+#lista .in{max-width:600px;margin:0 auto;padding-top:6vh}
+#lista .mk{font-family:Georgia,serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+ color:var(--gold);text-align:center}
+#lista h1{text-align:center;margin:20px 0 6px}
+#lista p.hint{text-align:center;margin-bottom:16px}
+#buscapac{width:100%;padding:15px 14px;font-size:17px;font-family:inherit;color:var(--ink);background:#fff;
+ border:1.5px solid var(--rule);border-radius:11px;appearance:none}
+.pac{display:block;width:100%;text-align:left;font-family:inherit;background:var(--surface);
+ border:1.5px solid var(--rule);border-radius:14px;padding:16px 18px;margin:11px 0;cursor:pointer}
+.pac:active{border-color:var(--rose)}
+.pac b{display:block;font-size:17px;color:var(--ink);margin-bottom:3px}
+.pac span{display:block;font-size:14px;color:var(--ink2);line-height:1.45}
+.pac em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+ font-weight:800;color:var(--gold);margin-top:9px}
+#vaziolista{text-align:center;color:var(--ink2);font-size:15px;padding:24px 10px;line-height:1.55}
+.voltalista{display:block;width:100%;text-align:center;margin-top:20px;font-size:14.5px;font-weight:650;
+ color:var(--rose);background:none;border:none;font-family:inherit;padding:12px;cursor:pointer}
+#resumopac b{color:var(--ink)}
 body.modo-doc #trilha{display:none!important}
 
 /* blocos de parametro da sessao de laser */
@@ -223,7 +246,19 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
   <span>Ficha objetiva de laser &mdash; triagem de contraindica&ccedil;&otilde;es, dados t&eacute;cnicos da tatuagem,
   consentimento espec&iacute;fico e registro dos par&acirc;metros da sess&atilde;o.</span>
   <em>7 etapas &middot; cerca de 3 minutos</em></button>
+ <button class="tcard" type="button" data-abrir="lista" id="cardcont">
+  <b>Continuar tratamento</b>
+  <span id="contsub">Acrescentar a sess&atilde;o de hoje a uma ficha j&aacute; aberta, sem refazer a anamnese.</span>
+  <em id="contnum">nenhum tratamento em andamento</em></button>
  <p id="diaglink"><a href="diagnostico.html">Diagn&oacute;stico do aparelho</a></p>
+</div></div>
+<div id="lista"><div class="in">
+ <div class="mk">Meili Lane &middot; Est&eacute;tica Avan&ccedil;ada</div>
+ <h1>Continuar tratamento</h1>
+ <p class="hint">Escolha a paciente para acrescentar a sess&atilde;o de hoje.</p>
+ <input type="search" id="buscapac" placeholder="buscar por nome ou CPF" autocapitalize="off">
+ <div id="pacientes"></div>
+ <button class="voltalista" type="button" id="voltaescolha">voltar</button>
 </div></div>
 <header><div class="wrap">
  <div class="brand">Meili Lane · Estética Avançada</div>
@@ -233,7 +268,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 <div class="wrap" id="app">
 <div id="rasc"></div>
 <!-- 1 IDENTIFICAÇÃO -->
-<section class="step" data-trilha="ambas" data-val="ident" data-nome="Identificação">
+<section class="step" data-trilha="estetica laser" data-val="ident" data-nome="Identificação">
 <h1>Ficha de avaliação</h1>
 <p class="hint">Leva cerca de 6 minutos. Nenhuma informação sai deste aparelho — o rascunho fica salvo só aqui, e é apagado assim que o PDF é gerado.</p>
 <div class="card">
@@ -515,7 +550,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </section>
 
 <!-- 8 IMAGEM -->
-<section class="step" data-trilha="ambas" data-val="img" data-nome="Uso de imagem">
+<section class="step" data-trilha="estetica laser" data-val="img" data-nome="Uso de imagem">
 <h2>Uso de imagem</h2>
 <div class="aviso i"><b>Este consentimento é separado e opcional.</b> A paciente pode recusar e ainda assim realizar o procedimento normalmente. Nada muda no atendimento.</div>
 <div class="card">
@@ -538,10 +573,51 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
 </div>
 </section>
 
+<!-- C1 RE-TRIAGEM DA SESSÃO -->
+<section class="step" data-trilha="continua" data-val="retriagem" data-nome="Triagem de hoje">
+<h2>Antes de começar</h2>
+<p class="hint">Entre uma sessão e outra as coisas mudam. Estas perguntas se repetem <b>toda vez</b> — é o que protege a paciente e a decisão da profissional.</p>
+<div class="card">
+ <div class="sec">Tratamento</div>
+ <div class="rev" id="resumopac"></div>
+</div>
+<div class="card">
+ <div class="sec">Mudou algo desde a última sessão?</div>
+ <div class="chips" id="rgate"></div>
+ <div class="flag" id="f-rgate"></div>
+ <label>Detalhe o que foi marcado</label>
+ <textarea id="rgateobs" placeholder="medicamento e desde quando, data da exposição solar, região da lesão, liberação médica"></textarea>
+</div>
+<div class="card">
+ <div class="sec">Decisão de hoje</div>
+ <label>A sessão será realizada hoje? <span class="req">*</span></label><div class="yn" data-yn="rsegue"></div>
+ <div class="flag" id="f-rsegue"><b>Sessão adiada.</b> O documento gerado será um <b>registro de adiamento</b> — sem parâmetros de aplicação. Descreva abaixo o motivo e a conduta orientada; é esse registro que prova que a decisão de não tratar foi técnica.</div>
+ <label>Motivo do adiamento e conduta orientada</label>
+ <textarea id="rmotivo" placeholder="o que impediu, o que foi orientado e quando reavaliar"></textarea>
+</div>
+</section>
+
 <!-- L4 SESSÃO REALIZADA -->
-<section class="step" data-trilha="laser" data-nome="Sessão realizada">
+<section class="step" data-trilha="laser continua" data-val="sessao" data-nome="Sessão realizada">
 <h2>Sessão realizada</h2>
 <p class="hint">Preencha depois da aplicação. Estes parâmetros são o que permite repetir ou corrigir a dose na próxima sessão — sem eles, cada sessão recomeça no escuro.</p>
+<div class="card" id="cardevol">
+ <div class="ses">
+  <div class="st">Evolução desde a última sessão</div>
+  <label>Clareamento observado</label>
+  <select id="evclare"><option>Ainda não avaliado</option><option>Nenhum clareamento</option>
+  <option>Leve — até 25%</option><option>Moderado — 25 a 50%</option><option>Bom — 50 a 75%</option>
+  <option>Intenso — acima de 75%</option></select>
+  <div class="sec" style="margin-top:20px">Como a área reagiu</div>
+  <div class="chips" id="evreac"></div>
+  <div class="flag" id="f-evreac"></div>
+  <label>Tempo até a pele voltar ao normal</label>
+  <select id="evtempo"><option>Menos de 7 dias</option><option>7 a 14 dias</option>
+  <option>15 a 30 dias</option><option>Mais de 30 dias</option><option>Ainda não normalizou</option></select>
+  <label>Observações da evolução</label>
+  <textarea id="evobs" placeholder="opcional"></textarea>
+ </div>
+</div>
 <div class="card">
  <div class="ses">
   <div class="st">Equipamento</div>
@@ -570,11 +646,28 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
   <label>Data prevista para a próxima sessão</label>
   <input type="date" id="lprox">
  </div>
- <div class="ses">
+ <div class="ses" id="cardhist">
   <div class="st">Histórico anterior</div>
   <label>Sessões já realizadas nesta tatuagem — data, equipamento, parâmetros e resposta</label>
   <textarea id="lhist" placeholder="uma por linha. ex.: 12/03/2026 · Nd:YAG 1064 nm · 3,0 J/cm² · spot 4 mm · frosting imediato, sem bolha"></textarea>
  </div>
+</div>
+</section>
+
+<!-- C2 CIÊNCIA DA SESSÃO -->
+<section class="step" data-trilha="continua" data-val="tclesessao" data-nome="Ciência da sessão">
+<h2>Ciência e assinatura</h2>
+<p class="hint">O consentimento assinado na primeira sessão continua valendo e <b>não é reescrito</b>. Este termo registra a ciência de hoje, com data de hoje.</p>
+<div class="card">
+ <div class="sec">Termo de ciência da sessão</div>
+ <div class="termo" id="termosessao"></div>
+ <label style="margin-top:20px">Assinatura da paciente <span class="req">*</span></label>
+ <div class="sig" id="sig1c"><canvas></canvas><div class="ph">assine aqui com o dedo</div></div>
+ <div class="sigbar"><span id="sig1cn">—</span><button class="lnk" data-limpa="sig1c">Limpar assinatura</button></div>
+ <label style="margin-top:22px">Nº de inscrição no CRBM</label><input type="text" id="crbmc" placeholder="ex.: CRBM-1 12345">
+ <label style="margin-top:16px">Assinatura da profissional <span class="req">*</span></label>
+ <div class="sig" id="sig2c"><canvas></canvas><div class="ph">assine aqui</div></div>
+ <div class="sigbar"><span>Joselane de Lima Duarte — Biomédica</span><button class="lnk" data-limpa="sig2c">Limpar assinatura</button></div>
 </div>
 </section>
 
@@ -601,7 +694,7 @@ Se já está dentro de um desses apps e esta mensagem continua aparecendo, esse 
  <button class="btn p" id="avanca">Continuar</button>
 </div></nav>
 <div id="rascsalvo">rascunho salvo neste iPad</div>
-<div id="barra"><button id="bedit">Voltar a editar</button><button id="bimp">Salvar PDF</button><button id="bwa" style="display:none">Enviar à paciente</button><button id="babrir" style="display:none">Abrir PDF</button><button id="bnova">Nova ficha</button><span id="bavi">Gerando o PDF…</span></div>
+<div id="barra"><button id="bedit">Voltar a editar</button><button id="bimp">Salvar PDF</button><button id="bbkp" style="display:none">Cópia de segurança</button><button id="bwa" style="display:none">Enviar à paciente</button><button id="babrir" style="display:none">Abrir PDF</button><button id="bnova">Nova ficha</button><span id="bavi">Gerando o PDF…</span></div>
 <script>/** @license
  *
  * jsPDF - PDF Document creation from JavaScript
@@ -1018,7 +1111,15 @@ const CHIPS={
  ttipo:[['Profissional',0],['Amadora',0],['Cobertura — cover-up',1],['Sobre remoção anterior',1],
   ['Micropigmentação de sobrancelha',2],['Maquiagem definitiva — lábio ou olho',2]],
  lresp:[['Frosting imediato',0],['Eritema',0],['Edema',0],['Petéquias',0],['Sangramento puntiforme',1],
-  ['Bolha',1],['Dor acima do esperado',1],['Sem resposta visível',1]]
+  ['Bolha',1],['Dor acima do esperado',1],['Sem resposta visível',1]],
+ /* ---- re-triagem e evolução, sessões seguintes ---- */
+ rgate:[['Começou isotretinoína',2],['Gestação ou suspeita',2],['Amamentação',2],
+  ['Sol ou bronzeamento na área nos últimos 30 dias',2],['Medicação nova',2],
+  ['Infecção, herpes ou ferida na área',2],['Área da última sessão ainda não cicatrizou',2],
+  ['Cicatriz ou mancha nova na área',2],['Nenhuma mudança',0]],
+ evreac:[['Cicatrizou bem',0],['Hipopigmentação — clareou a pele',1],['Hiperpigmentação — escureceu a pele',1],
+  ['Cicatriz ou relevo',2],['Bolha que demorou a fechar',1],['Infecção',2],['Coceira persistente',0],
+  ['Escurecimento do pigmento',2]]
 };
 const ALERTA={
  cond:{'Marca-passo':'<b>Marca-passo.</b> Contraindica radiofrequência, ultrassom e qualquer corrente elétrica. Exige liberação do cardiologista por escrito.',
@@ -1073,13 +1174,27 @@ const ALERTA={
   'Sobre remoção anterior':'<b>Remoção prévia.</b> Levantar equipamento, parâmetros e resposta das sessões anteriores antes de definir a dose.',
   'Micropigmentação de sobrancelha':'<b>Micropigmentação.</b> Pigmentos de sobrancelha contêm óxido de ferro — risco alto de escurecimento paradoxal. Teste obrigatório em ponto único.',
   'Maquiagem definitiva — lábio ou olho':'<b>Maquiagem definitiva.</b> Risco alto de escurecimento paradoxal e proximidade ocular. Proteção ocular específica e teste obrigatório.'},
+ rgate:{'Começou isotretinoína':'<b>Isotretinoína iniciada.</b> Suspende o tratamento. Só retomar 6 meses após o término, com a data confirmada em receita ou relatório.',
+  'Gestação ou suspeita':'<b>Gestação.</b> Adiar as sessões seguintes. Procedimento eletivo, sem estudo de segurança.',
+  'Amamentação':'<b>Amamentação.</b> Adiar. Se houver decisão de seguir, exige liberação médica por escrito.',
+  'Sol ou bronzeamento na área nos últimos 30 dias':'<b>Exposição solar recente.</b> Adiar 30 dias e reforçar FPS 50+ na área.',
+  'Medicação nova':'<b>Medicação nova.</b> Verificar fotossensibilizantes, anticoagulantes e imunossupressores antes de disparar.',
+  'Infecção, herpes ou ferida na área':'<b>Lesão ativa na área.</b> Contraindica a sessão. Tratar e reagendar.',
+  'Área da última sessão ainda não cicatrizou':'<b>Pele ainda em recuperação.</b> Adiar e alargar o intervalo — disparar sobre pele não cicatrizada é a principal causa de cicatriz.',
+  'Cicatriz ou mancha nova na área':'<b>Alteração nova na área.</b> Registrar, fotografar e reduzir a fluência. Reavaliar o plano antes de seguir.'},
+ evreac:{'Hipopigmentação — clareou a pele':'<b>Hipopigmentação.</b> Reduzir a fluência e alargar o intervalo. Pode ser permanente — informar a paciente e registrar.',
+  'Hiperpigmentação — escureceu a pele':'<b>Hiperpigmentação.</b> Reduzir a fluência, reforçar fotoproteção e considerar despigmentante antes da próxima sessão.',
+  'Cicatriz ou relevo':'<b>Cicatriz.</b> Suspender a área afetada e reavaliar o plano. Reduzir fluência de forma significativa se houver retomada.',
+  'Bolha que demorou a fechar':'<b>Bolha de resolução lenta.</b> Fluência acima do tolerado — reduzir na sessão de hoje.',
+  'Infecção':'<b>Infecção após a última sessão.</b> Rever o protocolo de pós e encaminhar para avaliação médica antes de nova aplicação.',
+  'Escurecimento do pigmento':'<b>Escurecimento paradoxal confirmado.</b> Não repetir os mesmos parâmetros sobre a área. Teste em ponto único antes de qualquer nova aplicação.'},
  lresp:{'Bolha':'<b>Bolha na sessão.</b> Reduzir a fluência na próxima sessão. Orientar curativo, não romper e retorno em caso de sinal de infecção.',
   'Sangramento puntiforme':'<b>Sangramento puntiforme.</b> Fluência acima do necessário — reduzir na próxima sessão.',
   'Dor acima do esperado':'<b>Dor desproporcional.</b> Revisar parâmetros e resfriamento antes da próxima sessão.',
   'Sem resposta visível':'<b>Ausência de frosting.</b> Dose provavelmente insuficiente — reavaliar fluência e comprimento de onda para a próxima sessão.'}
 };
 const YNFLAG={grav:'f-grav',trombo:'f-trombo',fumo:'f-fumo',sol:'f-sol',tquel:'f-tquel',tcicat:'f-tcicat'};
-const YNFLAGNAO={tfps:'f-tfps'};   /* alerta que acende no NAO, nao no SIM */
+const YNFLAGNAO={tfps:'f-tfps',rsegue:'f-rsegue'};   /* alerta que acende no NAO, nao no SIM */
 
 /* ---------- montar chips ---------- */
 for(const k in CHIPS){
@@ -1179,7 +1294,7 @@ $('#cpf').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);
 $('#fone').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);
  e.target.value=v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2')};
 $('#nome').oninput=()=>{const n=$('#nome').value.trim()||'—';
- ['sig1n','sig3n','sig1ln'].forEach(i=>{const e=$('#'+i); if(e)e.textContent=n})};
+ ['sig1n','sig3n','sig1ln','sig1cn'].forEach(i=>{const e=$('#'+i); if(e)e.textContent=n})};
 $('#dataproc').value=new Date().toISOString().slice(0,10);
 $('#ldata').value=new Date().toISOString().slice(0,10);
 /* ---------- assinaturas ---------- */
@@ -1235,7 +1350,7 @@ function initSig(id){
   dim(){return pendDim?pendDim:{w:cv.width,h:cv.height}}};
  fit();
 }
-const SIGIDS=['sig1','sig2','sig3','sig1l','sig2l'];
+const SIGIDS=['sig1','sig2','sig3','sig1l','sig2l','sig1c','sig2c'];
 SIGIDS.forEach(initSig);
 const fitAll=()=>Object.values(SIG).forEach(s=>s.fit());
 addEventListener('resize',()=>{clearTimeout(window._f);window._f=setTimeout(fitAll,250)});
@@ -1298,7 +1413,94 @@ const TCLE_LASER=`<h4>1. Natureza do atendimento e t&eacute;cnica</h4>
 <p>Fui informada de que meus dados ser&atilde;o utilizados para a execu&ccedil;&atilde;o do tratamento, o cumprimento de obriga&ccedil;&otilde;es legais e o contato relativo ao meu atendimento, e de que posso solicitar acesso, corre&ccedil;&atilde;o, portabilidade ou elimina&ccedil;&atilde;o, nos termos do art. 18 da LGPD, pelos canais da cl&iacute;nica.</p>
 <h4>12. Declara&ccedil;&atilde;o final</h4>
 <p>Declaro que li e compreendi integralmente este termo, que tive oportunidade de perguntar e que todas as minhas d&uacute;vidas foram respondidas. <b>Consinto livremente com a realiza&ccedil;&atilde;o das sess&otilde;es de remo&ccedil;&atilde;o de tatuagem a laser.</b></p>`;
+const TERMO_SESSAO=`<h4>1. Confirmação das informações</h4>
+<p>Declaro que <b>as informações prestadas na ficha base permanecem verdadeiras</b> e que informei nesta data toda mudança ocorrida desde a última sessão — em especial uso de medicamentos, gestação, exposição solar na área tratada, infecção, ferida ou alteração de cicatrização.</p>
+<h4>2. Consentimento em vigor</h4>
+<p>Estou ciente de que o <b>Termo de Consentimento Livre e Esclarecido que assinei no início do tratamento continua válido</b>, que ele não foi alterado, e de que os riscos ali descritos — inclusive alteração permanente de cor da pele, cicatriz e remoção incompleta — <b>aplicam-se igualmente a esta sessão</b>.</p>
+<h4>3. Reorientação</h4>
+<p>Fui novamente orientada quanto aos cuidados posteriores, à fotoproteção obrigatória da área e ao intervalo mínimo até a próxima sessão, e comprometo-me a segui-los.</p>
+<h4>4. Estimativa revista</h4>
+<p>Estou ciente de que o número de sessões previsto <b>é reavaliado a cada sessão</b> conforme a resposta observada, e de que pode aumentar em relação à estimativa inicial, sem que isso constitua falha do tratamento.</p>
+<h4>5. Consentimento desta sessão</h4>
+<p><b>Consinto com a realização da sessão de hoje</b>, nos termos aqui declarados.</p>`;
 $('#tcle').innerHTML=TCLE; $('#timg').innerHTML=TIMG; $('#tclelaser').innerHTML=TCLE_LASER;
+$('#termosessao').innerHTML=TERMO_SESSAO;
+
+/* ================= prontuário no aparelho =================
+   Guarda o tratamento para que a sessão seguinte seja acrescentada sem refazer
+   a anamnese. Vive no IndexedDB do app instalado na tela de início — nesse modo
+   o iPad nao apaga o que o app grava; aberto pelo navegador, apagaria em 7 dias.
+   Nada sai do aparelho. */
+const PKEY='meili-prontuario';
+let PDB=null;
+function pdb(){
+ if(PDB) return Promise.resolve(PDB);
+ return new Promise(function(ok,err){
+  let r; try{ r=indexedDB.open(PKEY,1) }catch(e){ err(e); return }
+  r.onupgradeneeded=function(){ const d=r.result;
+   if(!d.objectStoreNames.contains('tratamentos')) d.createObjectStore('tratamentos',{keyPath:'id'}); };
+  r.onsuccess=function(){ PDB=r.result; ok(PDB) };
+  r.onerror=function(){ err(r.error) };
+ });
+}
+function ptx(modo,fn){
+ return pdb().then(function(d){ return new Promise(function(ok,err){
+  const t=d.transaction('tratamentos',modo), st=t.objectStore('tratamentos');
+  let q; try{ q=fn(st) }catch(e){ err(e); return }
+  t.oncomplete=function(){ ok(q&&'result' in q ? q.result : undefined) };
+  t.onerror=function(){ err(t.error) };
+ })});
+}
+const PRONT={
+ salvar:function(t){ t.atualizadoEm=Date.now(); return ptx('readwrite',function(st){return st.put(t)}) },
+ pegar:function(id){ return ptx('readonly',function(st){return st.get(id)}) },
+ listar:function(){ return ptx('readonly',function(st){return st.getAll()}) },
+ apagar:function(id){ return ptx('readwrite',function(st){return st.delete(id)}) }
+};
+/* pede ao iPad que trate este armazenamento como permanente */
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+
+/* campos que pertencem a UMA sessão — nunca entram na ficha base
+   e nunca são restaurados ao continuar um tratamento */
+const CAMPOS_SESSAO=['lequip','londa','lflu','lspot','lfreq','ldisp','lpass','lintcor','lprox','lhist',
+ 'lsnum','ldata','lpos','rgateobs','rmotivo','evclare','evtempo','evobs','crbmc'];
+const CHIPS_SESSAO=['lresp','rgate','evreac'];
+
+let CONT=null;   /* tratamento em continuação; null = ficha nova */
+
+function esc(t){ return String(t==null?'':t).replace(/[<>&"]/g,'') }
+function sigSalva(id){ const u=(SIG[id]&&!SIG[id].vazia())?SIG[id].url():null;
+ return u?{u:u,d:SIG[id].dim()}:null }
+function dadosBase(){
+ const campos={};
+ $$('input,select,textarea').forEach(function(e){
+  if(e.id&&e.id!=='imc'&&CAMPOS_SESSAO.indexOf(e.id)<0) campos[e.id]=e.value; });
+ const chips={};
+ for(const k in D.chips){ if(CHIPS_SESSAO.indexOf(k)<0) chips[k]=[...D.chips[k]]; }
+ const yn={}; for(const k in D.yn){ if(k!=='lteste'&&k!=='rsegue') yn[k]=D.yn[k]; }
+ return {campos:campos,chips:chips,yn:yn};
+}
+function aplicarBase(b){
+ if(!b) return;
+ for(const id in (b.campos||{})){ const e=document.getElementById(id); if(e) e.value=b.campos[id]; }
+ for(const k in (b.yn||{})){
+  const box=document.querySelector('[data-yn="'+k+'"]'); if(!box) continue;
+  const btn=box.querySelectorAll('button')[b.yn[k]===1?0:1]; if(btn) btn.click();
+ }
+ for(const k in (b.chips||{})){
+  const box=document.getElementById(k); if(!box) continue;
+  (b.chips[k]||[]).forEach(function(txt){
+   box.querySelectorAll('.chip').forEach(function(c){
+    if(c.textContent===txt && !c.classList.contains('sel')) c.click(); }); });
+ }
+ imc();
+}
+function paramsSessao(){
+ const v=function(id){ const e=$('#'+id); return e?e.value.trim():'' };
+ return {lequip:v('lequip'),londa:v('londa'),lflu:v('lflu'),lspot:v('lspot'),lfreq:v('lfreq'),
+  ldisp:v('ldisp'),lpass:v('lpass'),lteste:D.yn.lteste,lresp:[...D.chips.lresp],
+  lintcor:v('lintcor'),lprox:v('lprox'),lpos:v('lpos')};
+}
 /* ---------- navegação ---------- */
 /* ---------- trilhas ----------
    As secoes ficam todas no DOM; STEPS e a lista filtrada da trilha em uso.
@@ -1308,18 +1510,113 @@ let TRILHA='estetica';
 const TODOS=$$('.step');
 let STEPS=[];
 function montaSteps(){
- STEPS=TODOS.filter(function(s){ const t=s.dataset.trilha||'ambas'; return t==='ambas'||t===TRILHA; });
+ STEPS=TODOS.filter(function(s){
+  const t=s.dataset.trilha||'ambas';
+  return t==='ambas'||t.split(' ').indexOf(TRILHA)>-1;
+ });
 }
 function ajustaTrilha(){
+ const cont=(TRILHA==='continua');
  const q=$('#cardqueixa'); if(q) q.style.display=(TRILHA==='laser')?'none':'';
+ const ev=$('#cardevol'); if(ev) ev.style.display=cont?'':'none';
+ const hi=$('#cardhist'); if(hi) hi.style.display=cont?'none':'';
 }
 function escolherTrilha(){
  document.body.classList.add('escolhendo');
+ $('#lista').style.display='none';
  const box=$('#trilha'); box.style.display='block';
  box.querySelectorAll('[data-escolha]').forEach(function(b){
   b.onclick=function(){ comecar(b.dataset.escolha); };
  });
+ box.querySelectorAll('[data-abrir]').forEach(function(b){
+  b.onclick=function(){ abrirLista(); };
+ });
+ contaTratamentos();
  window.scrollTo(0,0);
+}
+function contaTratamentos(){
+ const e=$('#contnum'); if(!e) return;
+ PRONT.listar().then(function(ts){
+  const n=(ts||[]).length;
+  e.textContent = n ? (n===1?'1 tratamento em andamento':n+' tratamentos em andamento')
+                    : 'nenhum tratamento em andamento';
+ }).catch(function(){ e.textContent='nenhum tratamento em andamento' });
+}
+
+/* ---------- lista de tratamentos ---------- */
+let LISTA=[];
+function abrirLista(){
+ document.body.classList.add('escolhendo');
+ $('#trilha').style.display='none';
+ $('#lista').style.display='block';
+ $('#buscapac').value='';
+ $('#pacientes').innerHTML='<div id="vaziolista">carregando…</div>';
+ PRONT.listar().then(function(ts){
+  LISTA=(ts||[]).sort(function(a,b){ return (b.atualizadoEm||0)-(a.atualizadoEm||0) });
+  pintaLista('');
+ }).catch(function(){ LISTA=[]; pintaLista('') });
+ window.scrollTo(0,0);
+}
+function dataBR(d){ return d?new Date(d+'T12:00').toLocaleDateString('pt-BR'):'—' }
+function pintaLista(q){
+ const box=$('#pacientes'); box.innerHTML='';
+ const so=(q||'').toLowerCase(), dig=(q||'').replace(/\D/g,'');
+ const alvo=LISTA.filter(function(x){
+  if(!q) return true;
+  return (x.nome||'').toLowerCase().indexOf(so)>-1 || (dig&&(x.cpf||'').indexOf(dig)>-1);
+ });
+ if(!alvo.length){
+  box.innerHTML='<div id="vaziolista">'+(LISTA.length
+   ? 'Nenhuma paciente com esse nome ou CPF.'
+   : 'Nenhum tratamento em andamento ainda.<br>Toda ficha nova gerada aqui passa a aparecer nesta lista.')+'</div>';
+  return;
+ }
+ alvo.forEach(function(x){
+  const b=document.createElement('button'); b.type='button'; b.className='pac';
+  const n=(x.sessoes||[]).length;
+  const ult=n?x.sessoes[n-1]:null;
+  b.innerHTML='<b>'+esc(x.nome)+'</b>'+
+   '<span>'+esc(x.resumo||'')+'</span>'+
+   '<em>'+n+(n===1?' sessão':' sessões')+(ult&&ult.data?' · última em '+dataBR(ult.data):'')+'</em>';
+  b.onclick=function(){ continuar(x.id) };
+  box.appendChild(b);
+ });
+}
+function pintaResumoPac(t){
+ const box=$('#resumopac'); if(!box) return;
+ const b=(t.base&&t.base.campos)||{};
+ const g=function(rot,html){ return html?'<div class="g"><h5>'+rot+'</h5><div>'+html+'</div></div>':'' };
+ const n=(t.sessoes||[]).length, ult=n?t.sessoes[n-1]:null;
+ const par=ult&&ult.params?[ult.params.lequip,ult.params.londa?ult.params.londa+' nm':'',
+   ult.params.lflu?ult.params.lflu+' J/cm²':'',ult.params.lspot?'spot '+ult.params.lspot+' mm':'']
+   .filter(Boolean).map(esc).join(' · '):'';
+ box.innerHTML=
+  g('Paciente','<b>'+esc(t.nome)+'</b> · CPF '+esc(b.cpf||'—'))+
+  g('Tatuagem',esc(b.tlocal||'—')+(b.tobj?' — '+esc(b.tobj):''))+
+  g('Documento base',esc(t.id)+' · assinado em '+dataBR(t.dataBase))+
+  g('Sessões já realizadas',String(n)+(ult&&ult.data?' · última em '+dataBR(ult.data):''))+
+  g('Parâmetros da última sessão',par)+
+  g('Esta será a sessão','<b>nº '+(n+1)+'</b>');
+}
+function continuar(id){
+ PRONT.pegar(id).then(function(t){
+  if(!t){ alerta('Não achei esse tratamento no aparelho.'); return; }
+  CONT=t; TRILHA='continua';
+  zerarCampos();
+  aplicarBase(t.base);
+  $('#ldata').value=new Date().toISOString().slice(0,10);
+  $('#lsnum').value=String((t.sessoes||[]).length+1);
+  if(t.crbm) $('#crbmc').value=t.crbm;
+  const nm=(t.nome||'').trim();
+  ['sig1n','sig3n','sig1ln','sig1cn'].forEach(function(i){ const e=$('#'+i); if(e) e.textContent=nm||'—' });
+  pintaResumoPac(t);
+  $('#lista').style.display='none';
+  document.body.classList.remove('escolhendo');
+  montaSteps(); ajustaTrilha();
+  RLIG=true; ir(0,true); ligarAuto(); window.__rascAgenda();
+  window.scrollTo(0,0);
+  if(window.__diagnostico) setTimeout(window.__diagnostico,1200);
+ }).catch(function(e){ alerta('Não consegui abrir o tratamento: '+esc(String(e)).slice(0,60)) });
 }
 function comecar(t){
  TRILHA=(t==='laser')?'laser':'estetica';
@@ -1369,10 +1666,20 @@ function validaChave(ch){
   if(D.chips.tcor.size===0){alerta('Selecione as <b>cores</b> presentes na tatuagem.');return false} }
  if(ch==='tclelaser'){ if(SIG.sig1l.vazia()){alerta('Falta a <b>assinatura da paciente</b> no consentimento.');return false}
   if(SIG.sig2l.vazia()){alerta('Falta a <b>assinatura da profissional</b>.');return false} }
+ if(ch==='retriagem'){ if(D.chips.rgate.size===0){
+   alerta('Responda a triagem de hoje. Se nada mudou, toque em <b>Nenhuma mudança</b>.');return false}
+  if(D.yn.rsegue===undefined){alerta('Informe se a <b>sessão será realizada hoje</b>.');return false}
+  if(D.yn.rsegue===0&&!v('rmotivo')){alerta('Descreva o <b>motivo do adiamento</b> e a conduta orientada.');return false} }
+ if(ch==='sessao'){ if(TRILHA==='continua'&&D.yn.rsegue===1&&v('lequip')==='Não realizada nesta data'){
+   alerta('A sessão foi marcada como realizada — informe a <b>tecnologia utilizada</b>.');return false} }
+ if(ch==='tclesessao'){ if(SIG.sig1c.vazia()){alerta('Falta a <b>assinatura da paciente</b> na ciência da sessão.');return false}
+  if(SIG.sig2c.vazia()){alerta('Falta a <b>assinatura da profissional</b>.');return false} }
  if(ch==='img'){ if(D.yn.img===undefined){alerta('Responda se a paciente <b>autoriza o uso de imagem</b>.');return false}
   if(D.yn.img===1&&SIG.sig3.vazia()){alerta('Falta a <b>assinatura específica</b> do termo de imagem.');return false} }
  return true;
 }
+$('#buscapac').oninput=function(){ pintaLista(this.value.trim()) };
+$('#voltaescolha').onclick=function(){ escolherTrilha() };
 $('#volta').onclick=()=>ir(cur-1);
 $('#avanca').onclick=()=>{ if(cur===STEPS.length-1){gerar()} else {ir(cur+1)} };
 
@@ -1383,6 +1690,7 @@ const M=(id)=>{const n=NUM(id);return n?FMT(n)+' cm':''};
 const Y=(k)=>D.yn[k]===1?'Sim':(D.yn[k]===0?'Não':'—');
 function revisar(){
  const g=(t,c)=>`<div class="g"><h5>${t}</h5><div>${c}</div></div>`;
+ if(TRILHA==='continua') return revisarCont(g);
  if(TRILHA==='laser') return revisarLaser(g);
  $('#rev').innerHTML=
   g('Paciente',`<b>${L('nome')}</b><br>${L('cpf')} · ${L('fone')}<br>${L('email')}`)+
@@ -1421,6 +1729,128 @@ function revisarLaser(g){
  if(D.yn.img===1&&SIG.sig3.vazia())p.push('assinatura do termo de imagem');
  const box=$('#pend');
  if(p.length){box.style.display='block';box.innerHTML='<b>Falta:</b> '+p.join(', ')+'.'}else{box.style.display='none'}
+}
+
+function revisarCont(g){
+ const t=CONT||{}, b=(t.base&&t.base.campos)||{};
+ const n=((t.sessoes||[]).length)+1;
+ const adiada=(D.yn.rsegue===0);
+ $('#rev').innerHTML=
+  g('Paciente',`<b>${esc(t.nome)}</b> · CPF ${esc(b.cpf||'—')}`)+
+  g('Tratamento',`${esc(t.id)} — ${esc(b.tlocal||'')}`)+
+  g('Sessão de hoje',`<b>nº ${n}</b> · ${dataBR($('#ldata').value)}`)+
+  g('Triagem de hoje',C('rgate'))+
+  (adiada
+   ? g('Decisão','<b style="color:var(--crit)">Sessão adiada</b> — '+esc(L('rmotivo')))
+   : g('Evolução desde a última',`${L('evclare')} · ${C('evreac')}`)+
+     g('Parâmetros de hoje',`${L('lequip')}${L('londa')!=='—'?' · '+L('londa')+' nm':''}${L('lflu')!=='—'?' · '+L('lflu')+' J/cm²':''}`)+
+     g('Resposta imediata',C('lresp')))+
+  g('Uso de imagem', (t.imagem&&t.imagem.autorizado===1)
+   ? '<b style="color:var(--good)">Autorizado</b> — conforme termo assinado em '+dataBR(t.imagem.data)
+   : '<b style="color:var(--crit)">Não autorizado</b> — uso exclusivamente clínico');
+ const p=[];
+ if(SIG.sig1c.vazia())p.push('assinatura da paciente');
+ if(SIG.sig2c.vazia())p.push('assinatura da profissional');
+ const box=$('#pend');
+ if(p.length){box.style.display='block';box.innerHTML='<b>Falta:</b> '+p.join(', ')+'.'}else{box.style.display='none'}
+}
+
+/* ---------- páginas do prontuário em camadas ----------
+   A ficha base NAO e reescrita: ela e reproduzida com as assinaturas e a data
+   originais, sob carimbo de reproducao. A folha da sessao de hoje e um
+   documento novo, com data e assinaturas de hoje. */
+function paginasContinuacao(x){
+ const dl=x.dl, bloco=x.bloco, carimbo=x.carimbo;
+ const t=CONT||{}, b=(t.base&&t.base.campos)||{}, bc=(t.base&&t.base.chips)||{}, by=(t.base&&t.base.yn)||{};
+ const n=((t.sessoes||[]).length)+1;
+ const idSes=t.id+'-S'+String(n).padStart(2,'0');
+ const adiada=(D.yn.rsegue===0);
+ const ch=function(k){ return (bc[k]&&bc[k].length)?bc[k].join(' · '):'—' };
+ const yn=function(k){ return by[k]===1?'Sim':(by[k]===0?'Não':'—') };
+ const un=function(id,u){ const q=(b[id]||'').trim(); return q?q+' '+u:'' };
+ const sigsalva=function(o,nome,sub){
+  return '<div>'+(o&&o.u?'<img src="'+o.u+'" data-w="'+o.d.w+'" data-h="'+o.d.h+'">'
+   :'<div style="height:24mm;border-bottom:.5pt solid #241c1a"></div>')+
+   '<small><b>'+esc(nome)+'</b><br>'+sub+'</small></div>' };
+ const par=function(p){ if(!p) return '—';
+  return [p.lequip,p.londa?p.londa+' nm':'',p.lflu?p.lflu+' J/cm²':'',p.lspot?'spot '+p.lspot+' mm':'',
+   p.lfreq?p.lfreq+' Hz':'',p.ldisp?p.ldisp+' disparos':'',(p.lresp&&p.lresp.length)?p.lresp.join(', '):'']
+   .filter(Boolean).map(esc).join(' · ') };
+
+ let h='';
+ /* PÁGINA 1 — capa evolutiva */
+ const hist=(t.sessoes||[]).map(function(ss){
+  return ['Sessão '+ss.n+' — '+dataBR(ss.data), ss.params?par(ss.params):'<b>não realizada</b> — '+esc((ss.retriagem&&ss.retriagem.motivo)||'adiada')];
+ });
+ hist.push(['Sessão '+n+' — '+dataBR($('#ldata').value)+' (hoje)',
+   adiada?('<b>não realizada</b> — '+esc(L('rmotivo'))):par(paramsSessao())]);
+ h+=`<div class="pg"><h3 class="dt">Prontuário — Remoção de Tatuagem a Laser</h3>
+ ${dl([['Tratamento nº',esc(t.id)],['Documento desta sessão',esc(idSes)],['Data e hora',carimbo],
+   ['Sessão nº',String(n)]])}
+ ${bloco('Paciente',dl([['Nome',esc(t.nome)],['CPF',esc(b.cpf||'—')],['Telefone',esc(b.fone||'—')],
+   ['E-mail',esc(b.email||'—')]]))}
+ ${bloco('Tatuagem em tratamento',dl([['Localização',esc(b.tlocal||'—')],['Fototipo (Fitzpatrick)',ch('tfoto')],
+   ['Cores',ch('tcor')],['Tipo',ch('ttipo')],['Densidade de pigmento',esc(b.tdens||'—')],
+   ['Tamanho',esc(un('ttam','cm²'))],['Objetivo',esc(b.tobj||'—')],
+   ['Estimativa inicial de sessões',esc(b.tsessprev||'—')],['Intervalo previsto',esc(b.tinterv||'—')]]))}
+ ${bloco('Histórico de sessões',dl(hist))}
+ ${x.al.length?'<div class="dsec">Pontos de atenção clínica</div><div class="dalert"><b>ATENÇÃO — verificado nesta data</b><ul style="margin:2mm 0 0;padding-left:5mm">'+x.al.map(m=>'<li style="margin-bottom:1.5mm">'+m+'</li>').join('')+'</ul></div>':''}
+ </div>`;
+
+ /* PÁGINA 2 — ficha base, reproduzida */
+ h+=`<div class="pg"><h3 class="dt">Ficha Base — reprodução</h3>
+ <div class="dalert" style="border-color:#a8834e;color:#6b5432"><b>Reprodução do documento nº ${esc(t.id)}</b>, assinado em ${dataBR(t.dataBase)}. O conteúdo e as assinaturas abaixo são os originais e <b>não foram alterados</b> nesta ou em qualquer sessão posterior.</div>
+ ${bloco('Identificação',dl([['Nome',esc(t.nome)],['CPF',esc(b.cpf||'—')],['Endereço',esc(b.end||'—')],
+   ['Profissão',esc(b.prof||'—')]]))}
+ ${bloco('Triagem clínica da ficha base',dl([['Situações assinaladas',ch('tgate')],['Detalhamento',esc(b.tgateobs||'—')],
+   ['Medicamentos de uso contínuo',esc(b.tmed||'—')],['Alergias conhecidas',esc(b.talerg||'—')],
+   ['Histórico de queloide',yn('tquel')],['Fotoproteção diária na área',yn('tfps')]]))}
+ ${bloco('A tatuagem',dl([['Localização',esc(b.tlocal||'—')],['Tempo desde a tatuagem',esc(b.ttempo||'—')],
+   ['Cores presentes',ch('tcor')],['Tipo',ch('ttipo')],['Densidade',esc(b.tdens||'—')],
+   ['Cicatriz prévia na área',yn('tcicat')],['Remoção anterior',yn('tprev')+((b.tprevq||'').trim()?' — '+esc(b.tprevq):'')]]))}
+ <div class="dsig">${sigsalva(t.assinaturas&&t.assinaturas.paciente,t.nome,'Paciente · CPF '+esc(b.cpf||'')+' — assinatura original de '+dataBR(t.dataBase))}
+ ${sigsalva(t.assinaturas&&t.assinaturas.prof,'Joselane de Lima Duarte','Biomédica — '+esc(t.crbm||'CRBM')+'<br>assinatura original de '+dataBR(t.dataBase))}</div>
+ <div class="dstamp">Reprodução fiel do documento ${esc(t.id)}. O original, com o Termo de Consentimento Livre e Esclarecido integral, foi assinado em ${dataBR(t.dataBase)} e permanece arquivado sem alteração.</div></div>`;
+
+ /* PÁGINA 3 — folha da sessão de hoje */
+ h+=`<div class="pg"><h3 class="dt">Sessão nº ${n} — Registro e Ciência</h3>
+ ${dl([['Paciente',esc(t.nome)],['CPF',esc(b.cpf||'—')],['Tratamento nº',esc(t.id)],
+   ['Documento desta sessão',esc(idSes)],['Data',dataBR($('#ldata').value)]])}
+ ${bloco('Triagem desta data',dl([['Mudanças desde a última sessão',C('rgate')],['Detalhamento',L('rgateobs')]]))}
+ ${(t.sessoes||[]).length?bloco('Evolução desde a última sessão',dl([['Clareamento observado',L('evclare')],
+   ['Como a área reagiu',C('evreac')],['Tempo até normalizar',L('evtempo')],['Observações',L('evobs')]])):''}
+ ${adiada
+  ? '<div class="dsec">Decisão</div><div class="dalert"><b>SESSÃO NÃO REALIZADA NESTA DATA</b><br>'+esc(L('rmotivo'))+'</div>'
+  : bloco('Parâmetros aplicados',dl([['Tecnologia',L('lequip')],['Comprimento de onda',L('londa')!=='—'?L('londa')+' nm':''],
+    ['Fluência',L('lflu')!=='—'?L('lflu')+' J/cm²':''],['Spot',L('lspot')!=='—'?L('lspot')+' mm':''],
+    ['Frequência',L('lfreq')!=='—'?L('lfreq')+' Hz':''],['Nº de disparos',L('ldisp')],['Passagens',L('lpass')],
+    ['Teste prévio em área discreta',Y('lteste')],['Resposta imediata',C('lresp')],
+    ['Intercorrências',L('lintcor')],['Data prevista da próxima sessão',dataBR($('#lprox').value)],
+    ['Orientações entregues',L('lpos')]]))}
+ <div class="dsec">Termo de ciência da sessão</div>
+ <div class="dtxt">${TERMO_SESSAO}</div>
+ <div class="dsig">${sigsalva(sigSalva('sig1c'),t.nome,'Paciente · CPF '+esc(b.cpf||''))}
+ ${sigsalva(sigSalva('sig2c'),'Joselane de Lima Duarte','Biomédica — '+esc(L('crbmc')!=='—'?L('crbmc'):'CRBM'))}</div>
+ <div class="dstamp">Documento ${esc(idSes)} · assinado eletronicamente em ${carimbo} · gerado em dispositivo da clínica.<br>
+ Validade da assinatura eletrônica entre as partes: art. 10, § 2º, da MP nº 2.200-2/2001. Uma via foi disponibilizada à paciente.</div></div>`;
+
+ /* PÁGINA 4 — autorização de imagem, reproduzida */
+ const im=t.imagem||{};
+ if(im.autorizado===1){
+  h+=`<div class="pg"><h3 class="dt">Autorização de Uso de Imagem — reprodução</h3>
+  ${dl([['Paciente',esc(t.nome)],['CPF',esc(b.cpf||'—')],['Tratamento nº',esc(t.id)]])}
+  <div class="dalert" style="border-color:#a8834e;color:#6b5432"><b>Reprodução</b> da autorização assinada em ${dataBR(im.data)}, em documento próprio e destacado. O termo integral consta do documento original.</div>
+  ${dl([['Autoriza o uso em',(im.usos||[]).join(' · ')||'—'],['Forma de exibição',(im.forma||[]).join(' · ')||'—'],
+    ['Prazo',esc(im.prazo||'—')]])}
+  <div class="dsig" style="grid-template-columns:1fr">${sigsalva(im.assinatura,t.nome,'Paciente · assinatura original de '+dataBR(im.data))}</div>
+  <div class="dstamp">Consentimento específico e destacado — art. 11, I, da Lei nº 13.709/2018. Revogável a qualquer tempo, sem justificativa, pelos canais oficiais da clínica.</div></div>`;
+ } else {
+  h+=`<div class="pg"><h3 class="dt">Registro — Uso de Imagem Não Autorizado</h3>
+  ${dl([['Paciente',esc(t.nome)],['CPF',esc(b.cpf||'—')],['Tratamento nº',esc(t.id)],['Data',carimbo]])}
+  <div class="dtxt"><p>A paciente <b>não autorizou</b> o uso de suas fotografias para divulgação. As imagens porventura registradas são usadas <b>exclusivamente para acompanhamento clínico</b> e composição do prontuário, com base no art. 11, II, "f", da Lei nº 13.709/2018.</p></div>
+  <div class="dsig" style="grid-template-columns:1fr">${sigsalva(sigSalva('sig2c'),'Joselane de Lima Duarte','Biomédica — '+esc(L('crbmc')!=='—'?L('crbmc'):'CRBM'))}</div></div>`;
+ }
+ return h;
 }
 
 /* ---------- páginas da trilha de remoção de tatuagem ---------- */
@@ -1466,7 +1896,8 @@ function paginasLaser(x){
 
 /* ---------- documento para impressão ---------- */
 function gerar(){
- if(!validaChave(TRILHA==='laser'?'tclelaser':'tcle')||!validaChave('img'))return;
+ if(TRILHA==='continua'){ if(!validaChave('retriagem')||!validaChave('tclesessao'))return; }
+ else if(!validaChave(TRILHA==='laser'?'tclelaser':'tcle')||!validaChave('img'))return;
  const agora=new Date();
  const carimbo=agora.toLocaleString('pt-BR',{dateStyle:'full',timeStyle:'medium'});
  const id='ML-'+agora.getFullYear()+String(agora.getMonth()+1).padStart(2,'0')+String(agora.getDate()).padStart(2,'0')
@@ -1476,7 +1907,7 @@ function gerar(){
  const idade=$('#nasc').value?Math.floor((agora-new Date($('#nasc').value+'T12:00'))/31557600000)+' anos':'';
  /* alertas clínicos consolidados */
  const al=[];
- ['cond','med','alerg','pele','proc','corp','tgate','tcor','ttipo','lresp'].forEach(k=>{[...D.chips[k]].forEach(x=>{
+ ['cond','med','alerg','pele','proc','corp','tgate','tcor','ttipo','lresp','rgate','evreac'].forEach(k=>{[...D.chips[k]].forEach(x=>{
    const m=(ALERTA[k]||{})[x]; if(m)al.push(m.replace(/<\/?b>/g,''))})});
  if(D.yn.grav===1)al.push('Gestação — contraindica injetáveis, laser, radiofrequência e criolipólise.');
  if(D.yn.trombo===1)al.push('Histórico de trombose — exige liberação médica escrita para procedimentos corporais.');
@@ -1493,9 +1924,13 @@ function gerar(){
   return `<div>${u?`<img src="${u}" data-w="${dm.w}" data-h="${dm.h}">`:'<div style="height:24mm;border-bottom:.5pt solid #241c1a"></div>'}<small><b>${nome}</b><br>${sub}</small></div>`};
 
  let html='';
- const SPRO=(TRILHA==='laser')?'sig2l':'sig2', CRBMID=(TRILHA==='laser')?'crbml':'crbm';
+ const SPRO=(TRILHA==='continua')?'sig2c':((TRILHA==='laser')?'sig2l':'sig2');
+ const CRBMID=(TRILHA==='continua')?'crbmc':((TRILHA==='laser')?'crbml':'crbm');
+ const nses=CONT?(((CONT.sessoes||[]).length)+1):1;
+ const idSes=(TRILHA==='continua'&&CONT)?(CONT.id+'-S'+String(nses).padStart(2,'0')):id;
  const ctx={id:id,carimbo:carimbo,dl:dl,bloco:bloco,sigimg:sigimg,nasc:nasc,idade:idade,al:al};
- if(TRILHA==='laser'){ html+=paginasLaser(ctx); } else {
+ if(TRILHA==='continua'){ html+=paginasContinuacao(ctx); }
+ else if(TRILHA==='laser'){ html+=paginasLaser(ctx); } else {
  /* PÁGINA 1-2 — ANAMNESE */
  html+=`<div class="pg"><h3 class="dt">Ficha de Anamnese — Meili Lane Estética Avançada</h3>
  ${dl([['Documento nº',id],['Data e hora',carimbo]])}
@@ -1531,7 +1966,8 @@ function gerar(){
  <div class="dstamp">Documento ${id} · assinado eletronicamente em ${carimbo} · gerado em dispositivo da clínica.<br>
  Validade da assinatura eletrônica entre as partes: art. 10, § 2º, da MP nº 2.200-2/2001. Uma via foi disponibilizada à paciente.</div></div>`;
  }
- /* PÁGINA 4 — IMAGEM */
+ /* PÁGINA 4 — IMAGEM (a continuação já reproduz a autorização original) */
+ if(TRILHA!=='continua'){
  if(D.yn.img===1){
   html+=`<div class="pg"><h3 class="dt">Autorização de Uso de Imagem</h3>
   ${dl([['Paciente',L('nome')],['CPF',L('cpf')],['Documento nº',id]])}
@@ -1549,13 +1985,76 @@ function gerar(){
   <p>Registro lavrado pela profissional responsável para fins de controle interno.</p></div>
   <div class="dsig" style="grid-template-columns:1fr">${sigimg(SPRO,'Joselane de Lima Duarte','Biomédica — '+(L(CRBMID)!=='—'?L(CRBMID):'CRBM'))}</div></div>`;
  }
+ }
  $('#doc').innerHTML=html;
- document.title='Ficha '+L('nome').split(' ')[0]+' '+id;
- ARQ='Ficha '+L('nome').split(' ')[0]+' '+id+'.pdf';
- document.title='Ficha '+L('nome').split(' ')[0]+' '+id;
+ const prim=L('nome').split(' ')[0];
+ const rotulo=(TRILHA==='continua')?('Ficha '+prim+' '+idSes):('Ficha '+prim+' '+id);
+ document.title=rotulo;
+ ARQ=rotulo+'.pdf';
+ gravarProntuario(id,idSes,nses,($('#ldata').value||$('#dataproc').value||new Date().toISOString().slice(0,10)));
  document.body.classList.add('modo-doc');
+ document.getElementById('bbkp').style.display='inline-block';
  window.scrollTo(0,0);
  salvarPDF();
+}
+
+/* ---------- gravação no prontuário do aparelho ----------
+   Falha aqui nunca impede o PDF: o documento assinado e a entrega; o registro
+   local e conveniencia para a sessao seguinte. */
+function gravarProntuario(idBase,idSes,n,hoje){
+ try{
+  if(TRILHA==='continua'&&CONT){
+   CONT.sessoes=CONT.sessoes||[];
+   CONT.sessoes.push({n:n,doc:idSes,data:hoje,
+    retriagem:{gates:[...D.chips.rgate],obs:$('#rgateobs').value.trim(),
+      segue:D.yn.rsegue,motivo:$('#rmotivo').value.trim()},
+    evolucao:{clare:$('#evclare').value,reac:[...D.chips.evreac],
+      tempo:$('#evtempo').value,obs:$('#evobs').value.trim()},
+    params:(D.yn.rsegue===0)?null:paramsSessao(),
+    assinaturas:{paciente:sigSalva('sig1c'),prof:sigSalva('sig2c')},
+    crbm:$('#crbmc').value.trim()});
+   if($('#crbmc').value.trim()) CONT.crbm=$('#crbmc').value.trim();
+   PRONT.salvar(CONT).catch(function(){});
+   return;
+  }
+  if(TRILHA!=='laser') return;   /* por ora só o laser vira tratamento com sessões */
+  const t={id:idBase,cpf:($('#cpf').value||'').replace(/\D/g,''),nome:$('#nome').value.trim(),
+   trilha:'laser',criadoEm:Date.now(),dataBase:hoje,
+   resumo:[$('#tlocal').value.trim(),$('#tobj').value].filter(Boolean).join(' — '),
+   base:dadosBase(),
+   assinaturas:{paciente:sigSalva('sig1l'),prof:sigSalva('sig2l')},
+   crbm:$('#crbml').value.trim(),
+   imagem:{autorizado:D.yn.img,usos:[...D.chips.imgusos],forma:[...D.chips.imgforma],
+    prazo:$('#imgprazo').value,assinatura:sigSalva('sig3'),data:hoje},
+   sessoes:[{n:1,doc:idBase+'-S01',data:hoje,retriagem:null,evolucao:null,
+    params:paramsSessao(),assinaturas:{paciente:sigSalva('sig1l'),prof:sigSalva('sig2l')},
+    crbm:$('#crbml').value.trim()}]};
+  CONT=t;                        /* deixa a cópia de segurança disponível já nesta tela */
+  PRONT.salvar(t).catch(function(){});
+ }catch(e){}
+}
+
+/* ---------- cópia de segurança do tratamento ----------
+   O prontuário vive no iPad. Se o aparelho se perder, este arquivo e o que
+   reconstroi o tratamento em outro. */
+function baixarBackup(){
+ const t=CONT;
+ if(!t){ alerta('Ainda não há tratamento para salvar.'); return; }
+ const nome='Tratamento '+(t.nome||'').split(' ')[0]+' '+t.id+'.meili.json';
+ const texto=JSON.stringify(t);
+ const blob=new Blob([texto],{type:'application/json'});
+ let arq=null; try{ arq=new File([blob],nome,{type:'application/json'}) }catch(e){}
+ if(arq&&navigator.canShare&&navigator.share){
+  let pode=false; try{ pode=navigator.canShare({files:[arq]}) }catch(e){}
+  if(pode){ try{ navigator.share({files:[arq],title:nome}).catch(function(){});
+   document.getElementById('bavi').innerHTML='Escolha <b>Salvar em Arquivos</b> para guardar a cópia de segurança.';
+   return; }catch(e){} }
+ }
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a'); a.href=url; a.download=nome; a.rel='noopener';
+ document.body.appendChild(a); a.click();
+ setTimeout(function(){ if(a.parentNode)a.parentNode.removeChild(a); URL.revokeObjectURL(url) },400);
+ document.getElementById('bavi').innerHTML='Cópia de segurança salva: <b>'+esc(nome)+'</b>';
 }
 let ARQ='Ficha.pdf', ULT=null;
 function salvarPDF(){
@@ -1575,6 +2074,7 @@ function salvarPDF(){
  }catch(e){ av.innerHTML='<b>Não foi possível gerar o PDF:</b> '+e.message; }
 }
 document.getElementById('bimp').onclick=salvarPDF;
+document.getElementById('bbkp').onclick=baixarBackup;
 document.getElementById('babrir').onclick=()=>{ if(ULT) location.href=ULT; };
 document.getElementById('bedit').onclick=()=>{
  document.body.classList.remove('modo-doc');
@@ -1603,7 +2103,7 @@ document.getElementById('bwa').onclick=()=>{
 /* Nova ficha: dois toques. O primeiro pede confirmação, porque um toque
    acidental aqui apagaria a ficha inteira logo depois de gerar o PDF. */
 let NOVACONF=null;
-function zerarFicha(){
+function zerarCampos(){
  $$('input,select,textarea').forEach(e=>{ if(e.id&&BASE[e.id]!==undefined) e.value=BASE[e.id]; });
  for(const k in D.chips) D.chips[k].clear();
  $$('.chip.sel').forEach(c=>c.classList.remove('sel'));
@@ -1613,14 +2113,19 @@ function zerarFicha(){
  SIGIDS.forEach(id=>SIG[id].limpa());
  $('#imgbloco').style.display='none'; $('#imgnao').style.display='none';
  $('#imc').value=''; $('#altaviso').textContent=''; $('#cpfaviso').textContent='';
- $('#sig1n').textContent='—'; $('#sig3n').textContent='—';
+ ['sig1n','sig3n','sig1ln','sig1cn'].forEach(i=>{const e=$('#'+i); if(e)e.textContent='—'});
  $('#doc').innerHTML=''; document.body.classList.remove('modo-doc');
  document.getElementById('babrir').style.display='none';
  document.getElementById('bwa').style.display='none';
+ document.getElementById('bbkp').style.display='none';
  document.getElementById('bavi').textContent='Gerando o PDF…';
  if(ULT){ try{URL.revokeObjectURL(ULT)}catch(e){} }
  ULT=null; window.__ultimoArquivo=null; window.__ultimaUrl=null; ARQ='Ficha.pdf';
  document.title='Ficha de Anamnese — Meili Lane';
+}
+function zerarFicha(){
+ zerarCampos();
+ CONT=null;
  if(window.__rascNova) window.__rascNova();
  escolherTrilha(); window.scrollTo(0,0);
 }
@@ -1652,7 +2157,7 @@ function coletar(){
  $$('input,select,textarea').forEach(e=>{ if(e.id&&e.id!=='imc') campos[e.id]=e.value; });
  const chips={}; for(const k in D.chips) chips[k]=[...D.chips[k]];
  const sig={}; SIGIDS.forEach(id=>{ const d=sigDados(id); if(d) sig[id]=d; });
- return {v:2,ts:Date.now(),trilha:TRILHA,passo:cur,nome:($('#nome').value||'').trim(),
+ return {v:2,ts:Date.now(),trilha:TRILHA,contId:(CONT?CONT.id:null),passo:cur,nome:($('#nome').value||'').trim(),
          campos:campos,yn:D.yn,chips:chips,sig:sig};
 }
 /* Retrato do formulario em branco. Varios selects ja abrem com uma opcao
@@ -1724,7 +2229,7 @@ function iniciar(){
  if(TEMSTORE){ try{ d=JSON.parse(localStorage.getItem(RKEY)||'null'); }catch(e){ d=null; } }
  if(!d || d.v!==2){ escolherTrilha(); return; }
  /* o rascunho guarda a trilha: a ficha reabre exatamente nas etapas de origem */
- TRILHA=(d.trilha==='laser')?'laser':'estetica'; montaSteps(); ajustaTrilha();
+ TRILHA=(d.trilha==='laser'||d.trilha==='continua')?d.trilha:'estetica'; montaSteps(); ajustaTrilha();
  const cx=$('#rasc');
  let quando='';
  try{ quando=new Date(d.ts).toLocaleString('pt-BR',
@@ -1741,8 +2246,18 @@ function iniciar(){
   cx.style.display='none';
   document.removeEventListener('input',ignorou,true);
   document.removeEventListener('pointerdown',ignorou,true);
-  if(qual==='continuar'){ RLIG=true; aplicar(d); ligarAuto();
-   window.__rascAgenda();   // o evento que dispensou o banner ja passou; agenda na mao
+  if(qual==='continuar'){
+   RLIG=true;
+   /* rascunho de uma sessão em andamento precisa do tratamento de volta na memória */
+   if(d.trilha==='continua'&&d.contId){
+    PRONT.pegar(d.contId).then(function(t){
+     if(t){ CONT=t; pintaResumoPac(t); } else { TRILHA='laser'; montaSteps(); }
+     aplicar(d); ligarAuto(); window.__rascAgenda();
+    }).catch(function(){ aplicar(d); ligarAuto(); window.__rascAgenda(); });
+   } else {
+    aplicar(d); ligarAuto();
+    window.__rascAgenda();   // o evento que dispensou o banner ja passou; agenda na mao
+   }
   } else { apagarRasc(); escolherTrilha(); }
  }
  /* Se ela ignorar o banner e simplesmente começar a preencher, isso conta como
